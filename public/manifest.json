@@ -1,0 +1,19 @@
+{
+  "name": "AbilityCenterBI",
+  "short_name": "AbilityCenterBI",
+  "description": "Enterprise Data Analytics Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2E2C6E",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "en",
+  "orientation": "portrait-primary"
+}
