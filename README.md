@@ -151,6 +151,32 @@ A powerful, modern Power BI replica built with React, TypeScript, and Tailwind C
 
 ## 🚀 Deployment
 
+### Production Ready ✅
+
+AbilityCenterBI is fully optimized and production-ready with:
+
+- ✅ **Error Boundaries** - Graceful error handling and recovery
+- ✅ **Performance Monitoring** - Built-in performance tracking
+- ✅ **SEO Optimization** - Complete meta tags, sitemap, and structured data
+- ✅ **PWA Support** - Installable as a Progressive Web App
+- ✅ **Security Hardened** - No vulnerabilities, secure authentication
+- ✅ **Professional Legal Pages** - Privacy policy and terms of service
+- ✅ **Contact Integration** - Real contact information configured
+- ✅ **404 Handling** - Custom not found page with navigation
+- ✅ **Loading States** - Skeleton loaders and loading indicators
+- ✅ **Notification System** - Toast notifications for user feedback
+- ✅ **Mobile Responsive** - Optimized for all device sizes
+- ✅ **Type Safety** - Full TypeScript implementation
+
+### Live Application
+
+🌐 **Production URL**: [https://ability-center-bi.vercel.app](https://ability-center-bi.vercel.app)
+
+📄 **Professional Pages**:
+- [Home Page](https://ability-center-bi.vercel.app/home.html)
+- [Privacy Policy](https://ability-center-bi.vercel.app/privacy-policy.html)
+- [Terms of Service](https://ability-center-bi.vercel.app/terms-of-service.html)
+
 ### Vercel (Recommended)
 
 1. **Install Vercel CLI**
@@ -168,6 +194,7 @@ A powerful, modern Power BI replica built with React, TypeScript, and Tailwind C
    - `VITE_GOOGLE_CLIENT_ID`
    - `VITE_GOOGLE_CLIENT_SECRET`
    - `VITE_GOOGLE_API_KEY`
+   - `VITE_API_BASE_URL=https://your-domain.vercel.app/api`
 
 ### Other Platforms
 
@@ -176,6 +203,37 @@ The app can be deployed to any static hosting service:
 - AWS S3 + CloudFront
 - Firebase Hosting
 - GitHub Pages
+
+## 🔐 Google OAuth Setup
+
+### Required Google Cloud Configuration
+
+1. **Create OAuth 2.0 Credentials**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing
+   - Enable required APIs:
+     - Google Sheets API
+     - BigQuery API  
+     - Google Drive API
+     - Google People API
+
+2. **Configure OAuth Consent Screen**
+   - App name: `AbilityCenterBI`
+   - User support email: `faldosari2008@gmail.com`
+   - Developer contact: `faldosari2008@gmail.com`
+   - App domain: `ability-center-bi.vercel.app`
+   - Privacy policy: `https://ability-center-bi.vercel.app/privacy-policy.html`
+   - Terms of service: `https://ability-center-bi.vercel.app/terms-of-service.html`
+
+3. **Authorized JavaScript Origins**
+   ```
+   https://ability-center-bi.vercel.app
+   http://localhost:5173
+   ```
+
+4. **Publishing Status**
+   - For personal use: Keep in "Testing" mode
+   - For public use: Submit for verification and publish to "In production"
 
 ## 🧪 Development
 
@@ -206,8 +264,18 @@ src/
 └── styles/            # Global styles
 ```
 
+## 📞 Support & Contact
+
+- **Email**: faldosari2008@gmail.com
+- **GitHub**: [Faisal-Aldosari/AbilityCenterBI](https://github.com/Faisal-Aldosari/AbilityCenterBI)
+- **Live App**: [https://ability-center-bi.vercel.app](https://ability-center-bi.vercel.app)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ---
 
-Made with ❤️ by Faisal Aldosari
+**Made with ❤️ by Faisal Aldosari**
 
- 
+*AbilityCenterBI - Transform your data into actionable insights*
