@@ -46,7 +46,7 @@ export const initGoogleAuth = async (): Promise<void> => {
           ],
         });
 
-        // Initialize token client for OAuth
+        // Initialize token client for OAuth with popup mode
         tokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           scope: 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
