@@ -1,18 +1,113 @@
 {
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/auth/(.*)",
+      "dest": "/api/auth/$1"
+    },
+    {
+      "src": "/api/sheets/(.*)",
+      "dest": "/api/sheets/$1"
+    },
+    {
+      "src": "/api/bigquery/(.*)",
+      "dest": "/api/bigquery/$1"
+    },
+    {
+      "src": "/api/gemini/(.*)",
+      "dest": "/api/gemini/$1"
+    },
+    {
+      "src": "/api/transformation/(.*)",
+      "dest": "/api/transformation/$1"
+    },
+    {
+      "src": "/api/export/(.*)",
+      "dest": "/api/export/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, X-Requested-With"
+        },
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
   "functions": {
     "src/api/**/*.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "@vercel/node"
     }
   },
   "rewrites": [
     {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
+      "source": "/api/auth/:path*",
+      "destination": "/api/auth/:path*"
+    },
+    {
+      "source": "/api/sheets/:path*",
+      "destination": "/api/sheets/:path*"
+    },
+    {
+      "source": "/api/bigquery/:path*",
+      "destination": "/api/bigquery/:path*"
+    },
+    {
+      "source": "/api/gemini/:path*",
+      "destination": "/api/gemini/:path*"
+    },
+    {
+      "source": "/api/transformation/:path*",
+      "destination": "/api/transformation/:path*"
+    },
+    {
+      "source": "/api/export/:path*",
+      "destination": "/api/export/:path*"
     }
-  ],
-  "env": {
-    "VITE_GOOGLE_CLIENT_ID": "@google_client_id",
-    "VITE_GOOGLE_CLIENT_SECRET": "@google_client_secret",
-    "VITE_GOOGLE_API_KEY": "@google_api_key"
-  }
+  ]
 }
