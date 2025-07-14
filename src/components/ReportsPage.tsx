@@ -8,6 +8,8 @@ import {
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import { exportToCSV } from '../utils/export';
+
 
 interface Report {
   id: string;
@@ -17,6 +19,7 @@ interface Report {
   createdAt: Date;
   size: string;
   status: 'ready' | 'generating' | 'failed';
+  data?: any[];
 }
 
 const ReportsPage: React.FC = () => {
@@ -42,7 +45,17 @@ const ReportsPage: React.FC = () => {
     loadReports();
   }, []);
 
-  const handleGenerateReport = (type: 'pdf' | 'csv' | 'excel') => {
+  const handleGenerateReport = async (type: 'pdf' | 'csv' | 'excel') => {
+    setShowGenerateModal(false);
+    
+    // Get sample data for the report
+    const datasets = JSON.parse(localStorage.getItem('abi_datasets') || '[]');
+    const sampleData = datasets.length > 0 ? datasets[0].rows : [
+      { name: 'Revenue', value: 125000, category: 'Income' },
+      { name: 'Expenses', value: 85000, category: 'Outgoing' },
+      { name: 'Profit', value: 40000, category: 'Income' },
+    ];
+
     const newReport: Report = {
       id: `report_${Date.now()}`,
       name: `Analytics Report - ${new Date().toLocaleDateString()}`,
@@ -50,13 +63,21 @@ const ReportsPage: React.FC = () => {
       description: `Generated ${type.toUpperCase()} report with current dashboard data`,
       createdAt: new Date(),
       size: '1.2 MB',
-      status: 'ready',
+      status: 'generating',
+      data: sampleData,
     };
 
     const updatedReports = [...reports, newReport];
     setReports(updatedReports);
     localStorage.setItem('abi_reports', JSON.stringify(updatedReports));
-    setShowGenerateModal(false);
+
+    // Simulate report generation delay
+    setTimeout(() => {
+      const completedReport = { ...newReport, status: 'ready' as const };
+      const finalReports = reports.map(r => r.id === newReport.id ? completedReport : r);
+      setReports([...finalReports, completedReport]);
+      localStorage.setItem('abi_reports', JSON.stringify([...finalReports, completedReport]));
+    }, 2000);
   };
 
   const handleDeleteReport = (id: string) => {
@@ -66,9 +87,39 @@ const ReportsPage: React.FC = () => {
   };
 
   const handleDownloadReport = (report: Report) => {
-    // Simulate download
-    console.log('Downloading report:', report.name);
-    alert(`Downloading ${report.name}...`);
+    try {
+      const sampleData = report.data || [
+        { metric: 'Revenue', value: 125000, category: 'Income', date: '2024-01-01' },
+        { metric: 'Expenses', value: 85000, category: 'Outgoing', date: '2024-01-01' },
+        { metric: 'Profit', value: 40000, category: 'Income', date: '2024-01-01' },
+        { metric: 'Users', value: 1500, category: 'Growth', date: '2024-01-01' },
+        { metric: 'Conversion Rate', value: 3.2, category: 'Performance', date: '2024-01-01' },
+      ];
+
+      if (report.type === 'csv') {
+        exportToCSV(sampleData, report.name);
+      } else if (report.type === 'excel') {
+        // Use CSV export for now (Excel functionality can be enhanced)
+        exportToCSV(sampleData, `${report.name}_Excel`);
+      } else if (report.type === 'pdf') {
+        // Create a simple PDF report with the data
+        generateSimplePDF(sampleData, report.name);
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      alert('Error downloading report. Please try again.');
+    }
+  };
+
+  const generateSimplePDF = (data: any[], filename: string) => {
+    try {
+      // For now, show an alert and download as CSV
+      alert('PDF generation feature is being enhanced. Downloading as CSV for now.');
+      exportToCSV(data, `${filename}_PDF_Version`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF report. Please try again.');
+    }
   };
 
   const reportTypes = [

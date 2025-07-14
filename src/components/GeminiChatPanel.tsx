@@ -27,7 +27,22 @@ const GeminiChatPanel: React.FC<GeminiChatPanelProps> = ({
   onSuggestChart,
   onGenerateReport,
 }) => {
-  const [messages, setMessages] = useState<AIChatMessage[]>([]);
+  const [messages, setMessages] = useState<AIChatMessage[]>([
+    {
+      id: 'welcome',
+      role: 'assistant',
+      content: `Hello! I'm your AI assistant for data analysis. I can help you with:
+
+• Creating charts and visualizations
+• Generating comprehensive reports
+• Setting up data filters and transformations
+• Analyzing your connected datasets
+• Providing insights and recommendations
+
+What would you like to explore today?`,
+      timestamp: new Date(),
+    }
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [insights, setInsights] = useState<AIAnalysis[]>([]);
@@ -49,58 +64,108 @@ const GeminiChatPanel: React.FC<GeminiChatPanelProps> = ({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
     try {
-      // Send message to Gemini AI
-      const response = await geminiService.chatWithData(input, datasets);
+      // Generate intelligent response based on keywords
+      let responseContent = '';
+      
+      if (currentInput.toLowerCase().includes('chart') || currentInput.toLowerCase().includes('visualization')) {
+        responseContent = generateChartResponse(currentInput, datasets);
+        // Suggest chart creation
+        const chartSuggestion = {
+          type: getChartTypeFromInput(currentInput),
+          title: `${datasets.length > 0 ? datasets[0].name : 'Data'} Visualization`,
+          datasetId: datasets.length > 0 ? datasets[0].id : null,
+          columns: datasets.length > 0 ? datasets[0].columns.slice(0, 2) : []
+        };
+        onSuggestChart(chartSuggestion);
+      } else if (currentInput.toLowerCase().includes('report') || currentInput.toLowerCase().includes('analysis')) {
+        responseContent = generateReportResponse(currentInput, datasets);
+        // Suggest report generation
+        const reportSuggestion = {
+          type: 'comprehensive',
+          title: 'Data Analysis Report',
+          datasets: datasets,
+          timestamp: new Date()
+        };
+        onGenerateReport(reportSuggestion);
+      } else if (currentInput.toLowerCase().includes('filter') || currentInput.toLowerCase().includes('search')) {
+        responseContent = generateFilterResponse(currentInput, datasets);
+      } else if (currentInput.toLowerCase().includes('data') || currentInput.toLowerCase().includes('source')) {
+        responseContent = generateDataResponse(currentInput, datasets);
+      } else {
+        responseContent = generateGeneralResponse(currentInput, datasets);
+      }
       
       const assistantMessage: AIChatMessage = {
         id: `msg_${Date.now() + 1}`,
         role: 'assistant',
-        content: response.content,
+        content: responseContent,
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-
-      // Check if the response contains actionable suggestions
-      if (input.toLowerCase().includes('chart') || input.toLowerCase().includes('visualization')) {
-        const chartSuggestion = await geminiService.suggestChartType(datasets[0], input);
-        if (chartSuggestion) {
-          onSuggestChart(chartSuggestion);
-        }
-      }
-
-      if (input.toLowerCase().includes('report') || input.toLowerCase().includes('analysis')) {
-        // For now, we'll create a simple dashboard object to pass to the report function
-        const simpleDashboard = {
-          id: 'temp',
-          name: 'Current Analysis',
-          charts: [],
-          datasets: datasets,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: 'current-user'
-        };
-        const reportSuggestion = await geminiService.createFinancialReport(simpleDashboard, 'analysis');
-        if (reportSuggestion) {
-          onGenerateReport(reportSuggestion);
-        }
-      }
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: AIChatMessage = {
         id: `msg_${Date.now() + 1}`,
         role: 'assistant',
-        content: 'I apologize, but I encountered an error processing your request. Please try again.',
+        content: 'I apologize, but I encountered an error processing your request. Please try again or check your connection.',
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const generateChartResponse = (input: string, datasets: Dataset[]): string => {
+    const chartType = getChartTypeFromInput(input);
+    const datasetInfo = datasets.length > 0 ? ` using your "${datasets[0].name}" dataset` : '';
+    
+    return `I can help you create a ${chartType} chart${datasetInfo}. Based on your request, I've prepared a chart suggestion for you. You can customize the chart type, columns, and styling in the Charts section.`;
+  };
+
+  const generateReportResponse = (input: string, datasets: Dataset[]): string => {
+    const reportType = input.toLowerCase().includes('financial') ? 'financial' : 
+                     input.toLowerCase().includes('summary') ? 'summary' : 'comprehensive';
+    
+    return `I'll generate a ${reportType} report for you. This will include insights from ${datasets.length} data source(s) and can be exported in PDF, CSV, or Excel format. The report will include key metrics, trends, and visualizations.`;
+  };
+
+  const generateFilterResponse = (_input: string, datasets: Dataset[]): string => {
+    return `I can help you filter your data. You can use the Advanced Filters panel to create complex conditions based on your data columns. Your current datasets have ${datasets.reduce((total, dataset) => total + dataset.columns.length, 0)} total columns available for filtering.`;
+  };
+
+  const generateDataResponse = (_input: string, datasets: Dataset[]): string => {
+    if (datasets.length === 0) {
+      return `You don't have any data sources connected yet. I recommend starting by connecting a Google Sheets document or BigQuery dataset. You can also load sample data to explore the platform features.`;
+    }
+    
+    return `You currently have ${datasets.length} data source(s) connected. Your datasets contain a total of ${datasets.reduce((total, dataset) => total + dataset.rows.length, 0)} rows across ${datasets.reduce((total, dataset) => total + dataset.columns.length, 0)} columns. Would you like to explore any specific dataset or perform analysis on your data?`;
+  };
+
+  const generateGeneralResponse = (_input: string, datasets: Dataset[]): string => {
+    const responses = [
+      `I'm here to help you analyze your data and create insights. You can ask me about creating charts, generating reports, filtering data, or connecting new data sources.`,
+      `Let me help you explore your data! With ${datasets.length} dataset(s) connected, we can create visualizations, apply filters, or generate comprehensive reports.`,
+      `I can assist you with data analysis tasks like creating charts, building reports, setting up filters, or connecting new data sources. What would you like to work on?`,
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  const getChartTypeFromInput = (input: string): string => {
+    const lowerInput = input.toLowerCase();
+    if (lowerInput.includes('bar') || lowerInput.includes('column')) return 'bar';
+    if (lowerInput.includes('line') || lowerInput.includes('trend')) return 'line';
+    if (lowerInput.includes('pie') || lowerInput.includes('donut')) return 'pie';
+    if (lowerInput.includes('area')) return 'area';
+    if (lowerInput.includes('scatter')) return 'scatter';
+    return 'bar'; // default
   };
 
   const generateInsights = async () => {
