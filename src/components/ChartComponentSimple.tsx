@@ -160,18 +160,18 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ chart, data }) => {
 
     switch (chart.type) {
       case 'bar':
-        return <Bar data={chartData} options={options} />;
+        return <Bar data={chartData as any} options={options} />;
       case 'line':
       case 'area':
-        return <Line data={chartData} options={options} />;
+        return <Line data={chartData as any} options={options} />;
       case 'pie':
-        return <Pie data={chartData} options={options} />;
+        return <Pie data={chartData as any} options={options} />;
       case 'doughnut':
-        return <Doughnut data={chartData} options={options} />;
+        return <Doughnut data={chartData as any} options={options} />;
       case 'radar':
-        return <Radar data={chartData} options={options} />;
+        return <Radar data={chartData as any} options={options} />;
       case 'scatter':
-        return <Scatter data={chartData} options={options} />;
+        return <Scatter data={chartData as any} options={options} />;
       
       // For advanced chart types, show a placeholder for now
       case 'candlestick':
@@ -198,7 +198,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ chart, data }) => {
         );
       
       default:
-        return <Bar data={chartData} options={options} />;
+        return <Bar data={chartData as any} options={options} />;
     }
   };
 
