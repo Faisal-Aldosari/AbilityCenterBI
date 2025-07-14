@@ -17,12 +17,14 @@ export interface Dataset {
   tableId?: string;
   columns: Column[];
   rows: any[];
-  lastUpdated: Date;
+  lastUpdated?: Date;
+  lastSync?: string;
 }
 
 export interface Column {
+  id?: string;
   name: string;
-  type: 'string' | 'number' | 'date' | 'boolean';
+  type: 'string' | 'number' | 'date' | 'boolean' | 'timestamp';
   nullable?: boolean;
 }
 

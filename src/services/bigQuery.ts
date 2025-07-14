@@ -155,7 +155,7 @@ const mapBigQueryType = (bigQueryType: string): 'string' | 'number' | 'date' | '
   }
 };
 
-const parseValue = (value: any, type: 'string' | 'number' | 'date' | 'boolean'): any => {
+const parseValue = (value: any, type: 'string' | 'number' | 'date' | 'boolean' | 'timestamp'): any => {
   if (value === null || value === undefined) return null;
   
   switch (type) {
@@ -164,6 +164,7 @@ const parseValue = (value: any, type: 'string' | 'number' | 'date' | 'boolean'):
     case 'boolean':
       return Boolean(value);
     case 'date':
+    case 'timestamp':
       return new Date(value);
     default:
       return String(value);

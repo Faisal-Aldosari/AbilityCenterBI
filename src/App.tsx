@@ -7,6 +7,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFoundPage } from './components/NotFoundPage';
 import LoginPage from './components/LoginPage';
 import DashboardPage from './components/DashboardPage';
+import DataSourcesPage from './components/DataSourcesPage';
+import ChartsPage from './components/ChartsPage';
+import ReportsPage from './components/ReportsPage';
+import SettingsPage from './components/SettingsPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import type { ReactNode } from 'react';
 
@@ -76,7 +80,7 @@ function App() {
                     path="/data"
                     element={
                       <ProtectedRoute>
-                        <DashboardPage />
+                        <DataSourcesPage />
                       </ProtectedRoute>
                     }
                   />
@@ -84,7 +88,7 @@ function App() {
                     path="/charts"
                     element={
                       <ProtectedRoute>
-                        <DashboardPage />
+                        <ChartsPage />
                       </ProtectedRoute>
                     }
                   />
@@ -92,7 +96,7 @@ function App() {
                     path="/reports"
                     element={
                       <ProtectedRoute>
-                        <DashboardPage />
+                        <ReportsPage />
                       </ProtectedRoute>
                     }
                   />
@@ -100,7 +104,7 @@ function App() {
                     path="/settings"
                     element={
                       <ProtectedRoute>
-                        <DashboardPage />
+                        <SettingsPage />
                       </ProtectedRoute>
                     }
                   />
