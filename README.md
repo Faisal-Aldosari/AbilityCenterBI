@@ -2,11 +2,17 @@
 
 A powerful, modern Power BI replica built with React, TypeScript, and Tailwind CSS. Connect to Google Sheets and BigQuery to create stunning data visualizations and interactive dashboards.
 
+## 🌐 Live Demo
+
+**Production URL**: [https://ability-center-h0m0j15cw-faisal-aldosaris-projects.vercel.app](https://ability-center-h0m0j15cw-faisal-aldosaris-projects.vercel.app)
+
+> **Note**: For Google OAuth to work, please see the [Google OAuth Setup Guide](./GOOGLE_OAUTH_SETUP.md) for configuration instructions.
+
 ![AbilityCenterBI](https://via.placeholder.com/800x400/F8941/FFFFFF?text=AbilityCenterBI)
 
 ## ✨ Features
 
-- 🔐 **Google OAuth Authentication** - Secure login with Google accounts
+- 🔐 **Google OAuth Authentication** - Secure login with Google accounts + **Persistent Sessions**
 - 📊 **Multiple Data Sources** - Connect to Google Sheets and BigQuery
 - 📈 **Advanced Chart Types** - Bar, line, pie, scatter, area, candlestick, waterfall, treemap, gauge, funnel, and more
 - 🤖 **AI-Powered Analytics** - Gemini AI integration for data insights and automated reporting
@@ -19,6 +25,8 @@ A powerful, modern Power BI replica built with React, TypeScript, and Tailwind C
 - 💹 **Financial Analysis** - Built-in financial metrics and ratio calculations
 - 💬 **AI Chat Assistant** - Natural language queries and insights from Gemini AI
 - 📊 **Sample Finance Data** - Pre-loaded demo data for immediate exploration
+- ✨ **Modern UI Design** - Clean, professional interface with smooth animations
+- 🔄 **Auto Token Refresh** - Seamless authentication without re-login requirements
 
 ## 🛠️ Tech Stack
 
