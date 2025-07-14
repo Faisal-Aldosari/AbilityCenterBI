@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from '../types';
-import { initGoogleAuth, signIn, signOut, getCurrentUser } from '../services/auth';
+import { initGoogleAuth, signIn, signOut, getCurrentUser, validateSession } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -33,9 +33,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         await initGoogleAuth();
         const currentUser = getCurrentUser();
-        setUser(currentUser);
+        
+        if (currentUser) {
+          // Validate the session before setting the user
+          const isValid = await validateSession();
+          if (isValid) {
+            setUser(currentUser);
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       } catch (error) {
         console.error('Failed to initialize authentication:', error);
+        setUser(null);
       } finally {
         setLoading(false);
       }

@@ -118,7 +118,10 @@ const DashboardPage: React.FC = () => {
     return (
       <DashboardLayout currentPage="dashboard">
         <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Loading your dashboard...</p>
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -126,17 +129,17 @@ const DashboardPage: React.FC = () => {
 
   return (
     <DashboardLayout currentPage="dashboard">
-      <div className="p-6">
+      <div className="p-6 max-w-7xl mx-auto">
         {/* Welcome Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome to AbilityCenterBI
           </h1>
-          <p className="text-gray-600">
+          <p className="text-lg text-gray-600">
             Create powerful data visualizations and insights from your data sources.
           </p>
         </motion.div>
@@ -149,9 +152,9 @@ const DashboardPage: React.FC = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         >
           {stats.map((stat) => (
-            <div key={stat.name} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div key={stat.name} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center">
-                <div className={`${stat.bgColor} rounded-lg p-3`}>
+                <div className={`${stat.bgColor} rounded-xl p-3`}>
                   <stat.icon className={`w-6 h-6 ${stat.color}`} />
                 </div>
                 <div className="ml-4">
@@ -168,73 +171,63 @@ const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8"
+          className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8"
         >
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <button
               onClick={handleLoadSampleData}
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-left"
+              className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-center"
             >
-              <div className="bg-orange-100 rounded-lg p-3 mr-4 group-hover:bg-orange-200 transition-colors">
-                <BeakerIcon className="w-6 h-6 text-orange-600" />
+              <div className="bg-orange-100 rounded-xl p-4 mb-4 group-hover:bg-orange-200 transition-colors">
+                <BeakerIcon className="w-8 h-8 text-orange-600" />
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Load Sample Data</h3>
-                <p className="text-sm text-gray-600">Financial demo data</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Load Sample Data</h3>
+              <p className="text-sm text-gray-600">Financial demo data</p>
             </button>
 
             <a
               href="/data"
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group"
+              className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-center"
             >
-              <div className="bg-orange-100 rounded-lg p-3 mr-4 group-hover:bg-orange-200 transition-colors">
-                <TableCellsIcon className="w-6 h-6 text-orange-600" />
+              <div className="bg-orange-100 rounded-xl p-4 mb-4 group-hover:bg-orange-200 transition-colors">
+                <TableCellsIcon className="w-8 h-8 text-orange-600" />
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Connect Data Source</h3>
-                <p className="text-sm text-gray-600">Link Google Sheets or BigQuery</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Connect Data Source</h3>
+              <p className="text-sm text-gray-600">Link Google Sheets or BigQuery</p>
             </a>
 
             <button
               onClick={() => setShowFilterPanel(true)}
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-left"
+              className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group text-center"
             >
-              <div className="bg-blue-100 rounded-lg p-3 mr-4 group-hover:bg-blue-200 transition-colors">
-                <FunnelIcon className="w-6 h-6 text-blue-600" />
+              <div className="bg-blue-100 rounded-xl p-4 mb-4 group-hover:bg-blue-200 transition-colors">
+                <FunnelIcon className="w-8 h-8 text-blue-600" />
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Advanced Filters</h3>
-                <p className="text-sm text-gray-600">Create complex data filters</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Advanced Filters</h3>
+              <p className="text-sm text-gray-600">Create complex data filters</p>
             </button>
 
             <button
               onClick={() => setShowTransformationPanel(true)}
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-left"
+              className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 group text-center"
             >
-              <div className="bg-green-100 rounded-lg p-3 mr-4 group-hover:bg-green-200 transition-colors">
-                <CogIcon className="w-6 h-6 text-green-600" />
+              <div className="bg-green-100 rounded-xl p-4 mb-4 group-hover:bg-green-200 transition-colors">
+                <CogIcon className="w-8 h-8 text-green-600" />
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">Data Transformation</h3>
-                <p className="text-sm text-gray-600">Transform and enrich data</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Data Transformation</h3>
+              <p className="text-sm text-gray-600">Transform and enrich data</p>
             </button>
 
             <button
               onClick={() => setShowAIPanel(true)}
-              className="flex items-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all duration-200 group text-left"
+              className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-purple-500 hover:bg-purple-50 transition-all duration-200 group text-center"
             >
-              <div className="bg-purple-100 rounded-lg p-3 mr-4 group-hover:bg-purple-200 transition-colors">
-                <SparklesIcon className="w-6 h-6 text-purple-600" />
+              <div className="bg-purple-100 rounded-xl p-4 mb-4 group-hover:bg-purple-200 transition-colors">
+                <SparklesIcon className="w-8 h-8 text-purple-600" />
               </div>
-              <div>
-                <h3 className="font-medium text-gray-900">AI Assistant</h3>
-                <p className="text-sm text-gray-600">Chat with AI for insights</p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">AI Assistant</h3>
+              <p className="text-sm text-gray-600">Chat with AI for insights</p>
             </button>
           </div>
         </motion.div>
@@ -246,29 +239,29 @@ const DashboardPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Dashboards</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Dashboards</h2>
               <a href="/dashboards" className="text-orange-600 hover:text-orange-700 text-sm font-medium">
                 View all
               </a>
             </div>
             {dashboards.length === 0 ? (
-              <div className="text-center py-8">
-                <DocumentChartBarIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No dashboards created yet</p>
+              <div className="text-center py-12">
+                <DocumentChartBarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg text-gray-600 mb-2">No dashboards created yet</p>
                 <p className="text-sm text-gray-500">Create your first dashboard to get started</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {dashboards.slice(0, 3).map((dashboard) => (
-                  <div key={dashboard.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={dashboard.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div>
-                      <h3 className="font-medium text-gray-900">{dashboard.name}</h3>
+                      <h3 className="font-semibold text-gray-900">{dashboard.name}</h3>
                       <p className="text-sm text-gray-600">{dashboard.charts.length} charts</p>
                     </div>
-                    <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                    <button className="text-orange-600 hover:text-orange-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors">
                       Open
                     </button>
                   </div>
@@ -282,31 +275,31 @@ const DashboardPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Data Sources</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Data Sources</h2>
               <a href="/data" className="text-orange-600 hover:text-orange-700 text-sm font-medium">
                 View all
               </a>
             </div>
             {recentDatasets.length === 0 ? (
-              <div className="text-center py-8">
-                <TableCellsIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No data sources connected</p>
+              <div className="text-center py-12">
+                <TableCellsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-lg text-gray-600 mb-2">No data sources connected</p>
                 <p className="text-sm text-gray-500">Connect Google Sheets or BigQuery to start</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {recentDatasets.map((dataset) => (
-                  <div key={dataset.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={dataset.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div>
-                      <h3 className="font-medium text-gray-900">{dataset.name}</h3>
+                      <h3 className="font-semibold text-gray-900">{dataset.name}</h3>
                       <p className="text-sm text-gray-600">
                         {dataset.type === 'googleSheets' ? 'Google Sheets' : 'BigQuery'} • {dataset.rows.length} rows
                       </p>
                     </div>
-                    <button className="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                    <button className="text-orange-600 hover:text-orange-700 text-sm font-medium px-4 py-2 rounded-lg hover:bg-orange-50 transition-colors">
                       View
                     </button>
                   </div>

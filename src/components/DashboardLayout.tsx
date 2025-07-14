@@ -52,10 +52,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
         <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <ChartBarIcon className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <ChartBarIcon className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-gray-900">AbilityCenterBI</span>
+              <span className="font-bold text-gray-900 text-lg">AbilityCenterBI</span>
             </div>
             <button onClick={() => setSidebarOpen(false)}>
               <XMarkIcon className="w-6 h-6 text-gray-500" />
@@ -66,9 +66,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
               <a
                 key={item.name}
                 href={item.href}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-200 ${
                   currentPage === item.id
-                    ? 'bg-orange-50 border-r-2 border-orange-500 text-orange-700'
+                    ? 'bg-orange-50 border-r-4 border-orange-500 text-orange-700'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -82,21 +82,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto">
+        <div className="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto shadow-lg">
           <div className="flex items-center flex-shrink-0 px-6">
-            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <ChartBarIcon className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <ChartBarIcon className="w-6 h-6 text-white" />
             </div>
-            <span className="ml-3 font-bold text-gray-900 text-lg">AbilityCenterBI</span>
+            <span className="ml-3 font-bold text-gray-900 text-xl">AbilityCenterBI</span>
           </div>
           <nav className="mt-8 flex-grow">
             {navigation.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-all duration-200 ${
                   currentPage === item.id
-                    ? 'bg-orange-50 border-r-2 border-orange-500 text-orange-700'
+                    ? 'bg-orange-50 border-r-4 border-orange-500 text-orange-700'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
@@ -119,27 +119,27 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
           >
             <Bars3Icon className="h-6 w-6" />
           </button>
-          <div className="flex-1 px-4 flex justify-between items-center">
+          <div className="flex-1 px-6 flex justify-between items-center">
             <div className="flex-1">
-              <h1 className="text-lg font-semibold text-gray-900 capitalize">
+              <h1 className="text-xl font-semibold text-gray-900 capitalize">
                 {currentPage === 'dashboard' ? 'Dashboard' : currentPage}
               </h1>
             </div>
             <div className="ml-4 flex items-center md:ml-6">
               {/* Profile dropdown */}
-              <div className="relative flex items-center space-x-3">
+              <div className="relative flex items-center space-x-4">
                 <img
-                  className="h-8 w-8 rounded-full"
+                  className="h-10 w-10 rounded-full border-2 border-gray-200"
                   src={user?.picture}
                   alt={user?.name}
                 />
                 <div className="hidden md:block">
-                  <div className="text-sm font-medium text-gray-700">{user?.name}</div>
+                  <div className="text-sm font-semibold text-gray-900">{user?.name}</div>
                   <div className="text-xs text-gray-500">{user?.email}</div>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
                   title="Sign out"
                 >
                   <ArrowRightOnRectangleIcon className="w-5 h-5" />
