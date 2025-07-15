@@ -247,7 +247,7 @@ const DataSourcesPage: React.FC = () => {
                 className="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center hover:bg-green-100 hover:border-green-300 transition-all duration-200"
               >
                 <div className="bg-green-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <TableCellsIcon className="w-8 h-8 text-white" />
+                  <TableCellsIcon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Google Sheets</h3>
                 <p className="text-gray-600">Connect spreadsheets from Google Drive</p>
@@ -263,7 +263,7 @@ const DataSourcesPage: React.FC = () => {
                 className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 text-center hover:bg-blue-100 hover:border-blue-300 transition-all duration-200"
               >
                 <div className="bg-blue-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <ServerIcon className="w-8 h-8 text-white" />
+                  <ServerIcon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">BigQuery</h3>
                 <p className="text-gray-600">Connect to Google BigQuery datasets</p>
@@ -279,7 +279,7 @@ const DataSourcesPage: React.FC = () => {
                 className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-8 text-center hover:bg-orange-100 hover:border-orange-300 transition-all duration-200"
               >
                 <div className="bg-orange-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <DocumentTextIcon className="w-8 h-8 text-white" />
+                  <DocumentTextIcon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">CSV Upload</h3>
                 <p className="text-gray-600">Upload CSV files from your computer</p>

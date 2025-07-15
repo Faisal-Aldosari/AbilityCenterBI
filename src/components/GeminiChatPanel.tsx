@@ -27,27 +27,50 @@ const GeminiChatPanel: React.FC<GeminiChatPanelProps> = ({
   onSuggestChart,
   onGenerateReport,
 }) => {
-  const [messages, setMessages] = useState<AIChatMessage[]>([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: `Hello! I'm your AI assistant for data analysis. I can help you with:
-
-• Creating charts and visualizations
-• Generating comprehensive reports
-• Setting up data filters and transformations
-• Analyzing your connected datasets
-• Providing insights and recommendations
-
-What would you like to explore today?`,
-      timestamp: new Date(),
-    }
-  ]);
+  const [messages, setMessages] = useState<AIChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [insights, setInsights] = useState<AIAnalysis[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const geminiService = new GeminiService();
+
+  // Initialize welcome message based on user's data
+  useEffect(() => {
+    const initializeChat = () => {
+      const datasetCount = datasets.length;
+      const totalRows = datasets.reduce((sum, dataset) => sum + dataset.rows.length, 0);
+      
+      let welcomeContent = `Hello! I'm your AI assistant for data analysis. `;
+      
+      if (datasetCount > 0) {
+        welcomeContent += `I can see you have ${datasetCount} dataset(s) with ${totalRows} total records. `;
+      } else {
+        welcomeContent += `I notice you haven't connected any data sources yet. `;
+      }
+      
+      welcomeContent += `I can help you with:
+
+• Creating charts and visualizations from your data
+• Generating comprehensive reports (PDF, CSV, Excel)
+• Setting up data filters and transformations
+• Analyzing your connected datasets
+• Providing insights and recommendations
+• Connecting new data sources (Google Sheets, BigQuery, CSV)
+
+What would you like to explore today?`;
+
+      const welcomeMessage: AIChatMessage = {
+        id: 'welcome',
+        role: 'assistant',
+        content: welcomeContent,
+        timestamp: new Date(),
+      };
+
+      setMessages([welcomeMessage]);
+    };
+
+    initializeChat();
+  }, [datasets]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -124,28 +147,89 @@ What would you like to explore today?`,
 
   const generateChartResponse = (input: string, datasets: Dataset[]): string => {
     const chartType = getChartTypeFromInput(input);
-    const datasetInfo = datasets.length > 0 ? ` using your "${datasets[0].name}" dataset` : '';
     
-    return `I can help you create a ${chartType} chart${datasetInfo}. Based on your request, I've prepared a chart suggestion for you. You can customize the chart type, columns, and styling in the Charts section.`;
+    if (datasets.length === 0) {
+      return `I'd love to help you create a ${chartType} chart! However, you'll need to connect some data sources first. Please visit the Data Sources page to upload a CSV file or connect Google Sheets/BigQuery data.`;
+    }
+    
+    const datasetInfo = ` using your "${datasets[0].name}" dataset`;
+    const availableColumns = datasets[0].columns.map(col => col.name).join(', ');
+    
+    return `Perfect! I can help you create a ${chartType} chart${datasetInfo}. 
+
+**Available columns**: ${availableColumns}
+
+I've prepared a chart suggestion for you. You can customize the chart type, select different columns, and adjust styling in the Charts section. Which columns would you like to visualize?`;
   };
 
   const generateReportResponse = (input: string, datasets: Dataset[]): string => {
     const reportType = input.toLowerCase().includes('financial') ? 'financial' : 
                      input.toLowerCase().includes('summary') ? 'summary' : 'comprehensive';
     
-    return `I'll generate a ${reportType} report for you. This will include insights from ${datasets.length} data source(s) and can be exported in PDF, CSV, or Excel format. The report will include key metrics, trends, and visualizations.`;
+    if (datasets.length === 0) {
+      return `I can help you generate a ${reportType} report, but you'll need to connect data sources first. Once you have data uploaded, I can create detailed reports in PDF, CSV, or Excel format.`;
+    }
+    
+    const totalRows = datasets.reduce((sum, dataset) => sum + dataset.rows.length, 0);
+    
+    return `Excellent! I'll help you generate a ${reportType} report using your ${datasets.length} data source(s) with ${totalRows} total records. 
+
+The report will include:
+• Key metrics and statistics
+• Data trends and patterns  
+• Visual charts and graphs
+• Export options (PDF, CSV, Excel)
+
+You can find generated reports in the Reports section. Would you like me to create this report now?`;
   };
 
   const generateFilterResponse = (_input: string, datasets: Dataset[]): string => {
-    return `I can help you filter your data. You can use the Advanced Filters panel to create complex conditions based on your data columns. Your current datasets have ${datasets.reduce((total, dataset) => total + dataset.columns.length, 0)} total columns available for filtering.`;
+    if (datasets.length === 0) {
+      return `I can help you with data filtering once you have data sources connected. Filters allow you to narrow down your data based on specific criteria and conditions.`;
+    }
+    
+    let availableColumns = '';
+    
+    datasets.forEach((dataset) => {
+      availableColumns += `\n**${dataset.name}**: ${dataset.columns.map(col => col.name).join(', ')}`;
+    });
+    
+    return `I can help you filter your data! You can use the Advanced Filters panel to create complex conditions.
+
+**Available columns for filtering**:${availableColumns}
+
+**Filter options**:
+• Equals, not equals, contains
+• Greater than, less than (for numbers)
+• Date ranges
+• Multiple conditions with AND/OR logic
+
+Which columns would you like to filter on?`;
   };
 
   const generateDataResponse = (_input: string, datasets: Dataset[]): string => {
     if (datasets.length === 0) {
-      return `You don't have any data sources connected yet. I recommend starting by connecting a Google Sheets document or BigQuery dataset. You can also load sample data to explore the platform features.`;
+      return `You don't have any data sources connected yet. I recommend:
+
+• **Google Sheets**: Connect your spreadsheets directly
+• **CSV Files**: Upload local data files  
+• **BigQuery**: Connect to your data warehouse
+
+Visit the Data Sources page to get started with uploading your data.`;
     }
     
-    return `You currently have ${datasets.length} data source(s) connected. Your datasets contain a total of ${datasets.reduce((total, dataset) => total + dataset.rows.length, 0)} rows across ${datasets.reduce((total, dataset) => total + dataset.columns.length, 0)} columns. Would you like to explore any specific dataset or perform analysis on your data?`;
+    const totalRows = datasets.reduce((total, dataset) => total + dataset.rows.length, 0);
+    const totalColumns = datasets.reduce((total, dataset) => total + dataset.columns.length, 0);
+    
+    let response = `You currently have ${datasets.length} data source(s) connected:\n\n`;
+    
+    datasets.forEach((dataset, index) => {
+      response += `${index + 1}. **${dataset.name}** (${dataset.rows.length} rows, ${dataset.columns.length} columns)\n`;
+    });
+    
+    response += `\n**Total**: ${totalRows} rows across ${totalColumns} columns.\n\nWould you like me to analyze any specific dataset or help you create visualizations from this data?`;
+    
+    return response;
   };
 
   const generateGeneralResponse = (_input: string, datasets: Dataset[]): string => {

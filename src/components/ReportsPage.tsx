@@ -48,23 +48,43 @@ const ReportsPage: React.FC = () => {
   const handleGenerateReport = async (type: 'pdf' | 'csv' | 'excel') => {
     setShowGenerateModal(false);
     
-    // Get sample data for the report
+    // Get real data from uploaded datasets
     const datasets = JSON.parse(localStorage.getItem('abi_datasets') || '[]');
-    const sampleData = datasets.length > 0 ? datasets[0].rows : [
-      { name: 'Revenue', value: 125000, category: 'Income' },
-      { name: 'Expenses', value: 85000, category: 'Outgoing' },
-      { name: 'Profit', value: 40000, category: 'Income' },
-    ];
+    let reportData: any[] = [];
+    
+    if (datasets.length > 0) {
+      // Combine data from all datasets for the report
+      reportData = datasets.reduce((acc: any[], dataset: any) => {
+        return acc.concat(dataset.rows.map((row: any) => ({
+          ...row,
+          dataset: dataset.name,
+          source: dataset.type
+        })));
+      }, []);
+    }
+    
+    // If no real data, create a message indicating this
+    if (reportData.length === 0) {
+      reportData = [
+        { 
+          message: 'No data sources connected', 
+          instruction: 'Please upload data from Google Sheets or CSV files to generate reports',
+          timestamp: new Date().toISOString()
+        }
+      ];
+    }
 
     const newReport: Report = {
       id: `report_${Date.now()}`,
       name: `Analytics Report - ${new Date().toLocaleDateString()}`,
       type,
-      description: `Generated ${type.toUpperCase()} report with current dashboard data`,
+      description: reportData.length > 1 ? 
+        `Generated ${type.toUpperCase()} report with ${reportData.length} data points from ${datasets.length} dataset(s)` :
+        `Generated ${type.toUpperCase()} report - No data sources connected`,
       createdAt: new Date(),
-      size: '1.2 MB',
+      size: reportData.length > 1 ? `${Math.round(reportData.length * 0.5)}KB` : '1KB',
       status: 'generating',
-      data: sampleData,
+      data: reportData,
     };
 
     const updatedReports = [...reports, newReport];
@@ -74,9 +94,9 @@ const ReportsPage: React.FC = () => {
     // Simulate report generation delay
     setTimeout(() => {
       const completedReport = { ...newReport, status: 'ready' as const };
-      const finalReports = reports.map(r => r.id === newReport.id ? completedReport : r);
-      setReports([...finalReports, completedReport]);
-      localStorage.setItem('abi_reports', JSON.stringify([...finalReports, completedReport]));
+      const finalReports = updatedReports.map(r => r.id === newReport.id ? completedReport : r);
+      setReports(finalReports);
+      localStorage.setItem('abi_reports', JSON.stringify(finalReports));
     }, 2000);
   };
 
@@ -88,22 +108,16 @@ const ReportsPage: React.FC = () => {
 
   const handleDownloadReport = (report: Report) => {
     try {
-      const sampleData = report.data || [
-        { metric: 'Revenue', value: 125000, category: 'Income', date: '2024-01-01' },
-        { metric: 'Expenses', value: 85000, category: 'Outgoing', date: '2024-01-01' },
-        { metric: 'Profit', value: 40000, category: 'Income', date: '2024-01-01' },
-        { metric: 'Users', value: 1500, category: 'Growth', date: '2024-01-01' },
-        { metric: 'Conversion Rate', value: 3.2, category: 'Performance', date: '2024-01-01' },
-      ];
+      const reportData = report.data || [];
 
       if (report.type === 'csv') {
-        exportToCSV(sampleData, report.name);
+        exportToCSV(reportData, report.name);
       } else if (report.type === 'excel') {
         // Use CSV export for now (Excel functionality can be enhanced)
-        exportToCSV(sampleData, `${report.name}_Excel`);
+        exportToCSV(reportData, `${report.name}_Excel`);
       } else if (report.type === 'pdf') {
-        // Create a simple PDF report with the data
-        generateSimplePDF(sampleData, report.name);
+        // Generate PDF with real data
+        generateSimplePDF(reportData, report.name);
       }
     } catch (error) {
       console.error('Error downloading report:', error);
@@ -111,11 +125,50 @@ const ReportsPage: React.FC = () => {
     }
   };
 
-  const generateSimplePDF = (data: any[], filename: string) => {
+  const generateSimplePDF = async (data: any[], filename: string) => {
     try {
-      // For now, show an alert and download as CSV
-      alert('PDF generation feature is being enhanced. Downloading as CSV for now.');
-      exportToCSV(data, `${filename}_PDF_Version`);
+      // Create a simple PDF with the data
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF();
+      
+      // Add title
+      pdf.setFontSize(20);
+      pdf.text(filename, 20, 20);
+      
+      // Add generation date
+      pdf.setFontSize(12);
+      pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 35);
+      
+      // Add data summary
+      pdf.setFontSize(14);
+      pdf.text('Data Summary:', 20, 55);
+      
+      let yPosition = 70;
+      const pageHeight = 280;
+      
+      // Add data rows
+      data.slice(0, 50).forEach((item) => {
+        if (yPosition > pageHeight) {
+          pdf.addPage();
+          yPosition = 20;
+        }
+        
+        const entries = Object.entries(item);
+        entries.forEach(([key, value]) => {
+          if (yPosition > pageHeight) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+          pdf.setFontSize(10);
+          pdf.text(`${key}: ${String(value)}`, 20, yPosition);
+          yPosition += 8;
+        });
+        
+        yPosition += 5; // Space between records
+      });
+      
+      // Save the PDF
+      pdf.save(`${filename}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF report. Please try again.');

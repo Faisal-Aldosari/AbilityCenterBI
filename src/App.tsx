@@ -6,7 +6,7 @@ import { NotificationProvider } from './components/NotificationSystem';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFoundPage } from './components/NotFoundPage';
 import LoginPage from './components/LoginPage';
-import DashboardPage from './components/DashboardPage';
+import DashboardPage from './components/DashboardPageClean';
 import DataSourcesPage from './components/DataSourcesPage';
 import ChartsPage from './components/ChartsPage';
 import ReportsPage from './components/ReportsPage';
