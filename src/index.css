@@ -1,21 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: #ffffff;
-  color: #333333;
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-color: #f8f9fa;
+  color: #333;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Custom utility classes matching homepage */
+.bg-primary {
+  background: #2E2C6E;
+}
+
+.bg-secondary {
+  background: #F8941F;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, #F8941F, #2E2C6E);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.text-primary {
+  color: #2E2C6E;
+}
+
+.text-secondary {
+  color: #F8941F;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-shadow {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-shadow-hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
