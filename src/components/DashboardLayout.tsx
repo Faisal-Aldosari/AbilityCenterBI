@@ -9,6 +9,7 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -16,9 +17,14 @@ import toast from 'react-hot-toast';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   currentPage?: string;
+  onAIToggle?: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage = 'dashboard' }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ 
+  children, 
+  currentPage = 'dashboard',
+  onAIToggle
+}) => {
   const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -238,6 +244,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
           {children}
         </div>
       </main>
+
+      {/* Floating AI Assistant Button */}
+      {onAIToggle && (
+        <motion.button
+          onClick={onAIToggle}
+          className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+          style={{
+            background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
+            border: 'none'
+          }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <SparklesIcon className="w-6 h-6 text-white mx-auto" />
+        </motion.button>
+      )}
     </div>
   );
 };

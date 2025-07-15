@@ -8,7 +8,9 @@ import {
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import { exportToCSV } from '../utils/export';
+import type { Dataset } from '../types';
 
 
 interface Report {
@@ -24,16 +26,23 @@ interface Report {
 
 const ReportsPage: React.FC = () => {
   const [reports, setReports] = useState<Report[]>([]);
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   useEffect(() => {
-    // Load reports from localStorage
+    // Load reports and datasets from localStorage
     const loadReports = () => {
       try {
         const savedReports = localStorage.getItem('abi_reports');
+        const savedDatasets = localStorage.getItem('abi_datasets');
+        
         if (savedReports) {
           setReports(JSON.parse(savedReports));
+        }
+        if (savedDatasets) {
+          setDatasets(JSON.parse(savedDatasets));
         }
       } catch (error) {
         console.error('Error loading reports:', error);
@@ -210,29 +219,34 @@ const ReportsPage: React.FC = () => {
   }
 
   return (
-    <DashboardLayout currentPage="reports">
-      <div className="p-6 max-w-7xl mx-auto">
+    <DashboardLayout currentPage="reports" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
+      <div className="space-y-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="text-center mb-8"
         >
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Reports</h1>
-              <p className="text-lg text-gray-600">
-                Generate and download reports from your data.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowGenerateModal(true)}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center space-x-2 transition-colors"
-            >
-              <PlusIcon className="w-5 h-5" />
-              <span>Generate Report</span>
-            </button>
-          </div>
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#2E2C6E' }}>
+            Analytics <span style={{ color: '#F8941F' }}>Reports</span>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+            Generate comprehensive reports from your data and export them in multiple formats.
+          </p>
+          
+          <button
+            onClick={() => setShowGenerateModal(true)}
+            className="inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
+              color: 'white',
+              border: 'none',
+              boxShadow: '0 10px 30px rgba(248, 148, 31, 0.3)'
+            }}
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Generate Report
+          </button>
         </motion.div>
 
         {/* Reports Grid */}
@@ -375,6 +389,21 @@ const ReportsPage: React.FC = () => {
             </motion.div>
           </div>
         )}
+        
+        {/* AI Assistant Panel */}
+        <GeminiChatPanel
+          isOpen={showAIPanel}
+          onClose={() => setShowAIPanel(false)}
+          datasets={datasets}
+          onSuggestChart={(config) => {
+            console.log('Chart suggestion:', config);
+            window.location.href = '/charts';
+          }}
+          onGenerateReport={(config) => {
+            console.log('Report generation:', config);
+            setShowGenerateModal(true);
+          }}
+        />
       </div>
     </DashboardLayout>
   );

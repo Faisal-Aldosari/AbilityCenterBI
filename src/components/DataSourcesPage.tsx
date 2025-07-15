@@ -9,7 +9,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   TrashIcon,
-  ArrowPathIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
@@ -34,7 +33,6 @@ const DataSourcesPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load saved datasets from localStorage
     const savedDatasets = localStorage.getItem('abi_datasets');
     if (savedDatasets) {
       try {
@@ -48,6 +46,71 @@ const DataSourcesPage: React.FC = () => {
   const saveDatasets = (newDatasets: Dataset[]) => {
     setDatasets(newDatasets);
     localStorage.setItem('abi_datasets', JSON.stringify(newDatasets));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      spreadsheetId: '',
+      sheetName: '',
+      projectId: '',
+      datasetId: '',
+      tableId: '',
+      csvFile: null,
+    });
+    setSelectedType('googleSheets');
+    setError(null);
+  };
+
+  const processCSVFile = async (file: File, name: string): Promise<Dataset> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const csv = e.target?.result as string;
+          if (!csv || csv.trim().length === 0) {
+            reject(new Error('CSV file is empty'));
+            return;
+          }
+
+          const lines = csv.split('\n').filter(line => line.trim());
+          if (lines.length < 2) {
+            reject(new Error('CSV file must have headers and data'));
+            return;
+          }
+
+          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          const rows = lines.slice(1).map(line => {
+            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+            const row: any = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            return row;
+          }).filter(row => Object.values(row).some(val => val !== ''));
+
+          const columns = headers.map(header => ({
+            name: header,
+            type: 'string' as const,
+          }));
+
+          const dataset: Dataset = {
+            id: `csv_${Date.now()}`,
+            name: name || file.name.replace('.csv', ''),
+            type: 'googleSheets',
+            columns,
+            rows,
+            lastUpdated: new Date(),
+          };
+
+          resolve(dataset);
+        } catch (error) {
+          reject(new Error('Error parsing CSV file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Error reading file'));
+      reader.readAsText(file);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,14 +129,13 @@ const DataSourcesPage: React.FC = () => {
         newDataset.name = formData.name || newDataset.name;
       } else if (selectedType === 'bigQuery') {
         if (!formData.projectId || !formData.datasetId || !formData.tableId) {
-          throw new Error('Project ID, Dataset ID, and Table ID are required');
+          throw new Error('All BigQuery fields are required');
         }
         newDataset = await fetchBigQueryData(formData.projectId, formData.datasetId, formData.tableId);
         newDataset.name = formData.name || newDataset.name;
       } else {
-        // CSV handling
         if (!formData.csvFile) {
-          throw new Error('CSV file is required');
+          throw new Error('Please select a CSV file');
         }
         newDataset = await processCSVFile(formData.csvFile, formData.name);
       }
@@ -82,91 +144,13 @@ const DataSourcesPage: React.FC = () => {
       saveDatasets(updatedDatasets);
       setShowAddModal(false);
       resetForm();
+      console.log('Dataset added successfully:', newDataset);
     } catch (error) {
+      console.error('Error adding dataset:', error);
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
-  };
-
-  const processCSVFile = async (file: File, name: string): Promise<Dataset> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const csv = e.target?.result as string;
-          const lines = csv.split('\n').filter(line => line.trim());
-          if (lines.length === 0) {
-            reject(new Error('CSV file is empty'));
-            return;
-          }
-
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-          const rows = lines.slice(1).map(line => {
-            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-            const row: any = {};
-            headers.forEach((header, index) => {
-              row[header] = values[index] || '';
-            });
-            return row;
-          });
-
-          const columns = headers.map(header => ({
-            name: header,
-            type: inferColumnType(rows, header),
-          }));
-
-          const dataset: Dataset = {
-            id: `csv_${Date.now()}`,
-            name: name || file.name.replace('.csv', ''),
-            type: 'googleSheets', // Use googleSheets type for CSV
-            columns,
-            rows,
-            lastUpdated: new Date(),
-          };
-
-          resolve(dataset);
-        } catch (error) {
-          reject(new Error('Error parsing CSV file'));
-        }
-      };
-      reader.onerror = () => reject(new Error('Error reading file'));
-      reader.readAsText(file);
-    });
-  };
-
-  const inferColumnType = (rows: any[], columnName: string): 'string' | 'number' | 'date' | 'boolean' => {
-    const sample = rows.slice(0, 10).map(row => row[columnName]).filter(val => val);
-    
-    // Check if all values are numbers
-    if (sample.every(val => !isNaN(Number(val)) && val !== '')) {
-      return 'number';
-    }
-    
-    // Check if all values are dates
-    if (sample.every(val => !isNaN(Date.parse(val)))) {
-      return 'date';
-    }
-    
-    // Check if all values are booleans
-    if (sample.every(val => val.toLowerCase() === 'true' || val.toLowerCase() === 'false')) {
-      return 'boolean';
-    }
-    
-    return 'string';
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      spreadsheetId: '',
-      sheetName: '',
-      projectId: '',
-      datasetId: '',
-      tableId: '',
-      csvFile: null,
-    });
-    setError(null);
   };
 
   const deleteDataset = (id: string) => {
@@ -174,228 +158,178 @@ const DataSourcesPage: React.FC = () => {
     saveDatasets(updatedDatasets);
   };
 
-  const refreshDataset = async (dataset: Dataset) => {
-    setLoading(true);
-    try {
-      let refreshedDataset: Dataset;
-      
-      if (dataset.type === 'googleSheets' && dataset.spreadsheetId) {
-        refreshedDataset = await fetchGoogleSheetData(dataset.spreadsheetId, dataset.sheetName);
-        refreshedDataset.name = dataset.name;
-        refreshedDataset.id = dataset.id;
-      } else if (dataset.type === 'bigQuery' && dataset.datasetId && dataset.tableId) {
-        refreshedDataset = await fetchBigQueryData(
-          dataset.spreadsheetId || 'default-project',
-          dataset.datasetId,
-          dataset.tableId
-        );
-        refreshedDataset.name = dataset.name;
-        refreshedDataset.id = dataset.id;
-      } else {
-        throw new Error('Cannot refresh this data source');
-      }
-
-      const updatedDatasets = datasets.map(d => d.id === dataset.id ? refreshedDataset : d);
-      saveDatasets(updatedDatasets);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to refresh dataset');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <DashboardLayout currentPage="data">
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="space-y-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {/* Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-6 py-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Data Sources</h1>
-                <p className="text-lg text-gray-600 mt-2">Connect and manage your data sources</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold mb-4" style={{ color: '#2E2C6E' }}>
+            Data <span style={{ color: '#F8941F' }}>Sources</span>
+          </h1>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+            Connect your data from Google Sheets, upload CSV files, or connect to BigQuery for powerful analytics.
+          </p>
+          
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
+              color: 'white',
+              border: 'none',
+              boxShadow: '0 10px 30px rgba(248, 148, 31, 0.3)'
+            }}
+          >
+            <PlusIcon className="w-5 h-5 mr-2" />
+            Add Data Source
+          </button>
+        </motion.div>
+
+        {/* Quick Connect Options */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-semibold mb-6" style={{ color: '#2E2C6E' }}>Quick Connect</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setSelectedType('googleSheets');
+                setShowAddModal(true);
+              }}
+              className="bg-white p-6 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1"
+              style={{
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
+                   style={{ background: 'linear-gradient(135deg, #34D399, #10B981)' }}>
+                <TableCellsIcon className="w-8 h-8 text-white" />
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowAddModal(true)}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-              >
-                <PlusIcon className="w-5 h-5" />
-                Add Data Source
-              </motion.button>
-            </div>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>Google Sheets</h3>
+              <p className="text-gray-600">Connect spreadsheets from Google Drive</p>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setSelectedType('bigQuery');
+                setShowAddModal(true);
+              }}
+              className="bg-white p-6 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1"
+              style={{
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
+                   style={{ background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)' }}>
+                <ServerIcon className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>BigQuery</h3>
+              <p className="text-gray-600">Connect to Google BigQuery datasets</p>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setSelectedType('csv');
+                setShowAddModal(true);
+              }}
+              className="bg-white p-6 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1"
+              style={{
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
+                   style={{ background: 'linear-gradient(135deg, #F8941F, #ff6b35)' }}>
+                <DocumentTextIcon className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>CSV Upload</h3>
+              <p className="text-gray-600">Upload CSV files from your computer</p>
+            </motion.button>
           </div>
-        </div>
+        </motion.section>
 
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Connection Types */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Quick Connect</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setSelectedType('googleSheets');
-                  setShowAddModal(true);
-                }}
-                className="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center hover:bg-green-100 hover:border-green-300 transition-all duration-200"
-              >
-                <div className="bg-green-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <TableCellsIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Google Sheets</h3>
-                <p className="text-gray-600">Connect spreadsheets from Google Drive</p>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setSelectedType('bigQuery');
-                  setShowAddModal(true);
-                }}
-                className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-8 text-center hover:bg-blue-100 hover:border-blue-300 transition-all duration-200"
-              >
-                <div className="bg-blue-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <ServerIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">BigQuery</h3>
-                <p className="text-gray-600">Connect to Google BigQuery datasets</p>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setSelectedType('csv');
-                  setShowAddModal(true);
-                }}
-                className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-8 text-center hover:bg-orange-100 hover:border-orange-300 transition-all duration-200"
-              >
-                <div className="bg-orange-500 rounded-xl p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <DocumentTextIcon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">CSV Upload</h3>
-                <p className="text-gray-600">Upload CSV files from your computer</p>
-              </motion.button>
+        {/* Connected Datasets */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h2 className="text-2xl font-semibold mb-6" style={{ color: '#2E2C6E' }}>Connected Data Sources</h2>
+          
+          {datasets.length === 0 ? (
+            <div className="text-center py-12">
+              <CloudArrowUpIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Data Sources Connected</h3>
+              <p className="text-gray-600 mb-6">Start by connecting your first data source to begin analyzing your data.</p>
             </div>
-          </motion.section>
-
-          {/* Datasets List */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900">Connected Sources</h2>
-              <span className="text-sm text-gray-500">{datasets.length} sources connected</span>
-            </div>
-
-            {datasets.length === 0 ? (
-              <div className="bg-white rounded-2xl p-12 text-center border border-gray-200">
-                <CloudArrowUpIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No data sources connected</h3>
-                <p className="text-gray-600 mb-6">Get started by connecting your first data source</p>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors"
+          ) : (
+            <div className="grid gap-6">
+              {datasets.map((dataset, index) => (
+                <motion.div
+                  key={dataset.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white p-6 rounded-2xl"
+                  style={{
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}
                 >
-                  Add Data Source
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {datasets.map((dataset, index) => (
-                  <motion.div
-                    key={dataset.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-200"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className={`rounded-xl p-3 ${
-                          dataset.type === 'googleSheets' ? 'bg-green-100' : 'bg-blue-100'
-                        }`}>
-                          {dataset.type === 'googleSheets' ? (
-                            <TableCellsIcon className={`w-6 h-6 ${
-                              dataset.type === 'googleSheets' ? 'text-green-600' : 'text-blue-600'
-                            }`} />
-                          ) : (
-                            <ServerIcon className="w-6 h-6 text-blue-600" />
-                          )}
-                        </div>
-                        <div className="ml-4">
-                          <h3 className="text-lg font-semibold text-gray-900">{dataset.name}</h3>
-                          <p className="text-sm text-gray-500 capitalize">{dataset.type.replace(/([A-Z])/g, ' $1')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="w-5 h-5 text-green-500" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Columns</p>
-                        <p className="text-lg font-semibold text-gray-900">{dataset.columns.length}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                           style={{ background: 'linear-gradient(135deg, #F8941F, #2E2C6E)' }}>
+                        <TableCellsIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Rows</p>
-                        <p className="text-lg font-semibold text-gray-900">{dataset.rows.length}</p>
+                        <h3 className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>{dataset.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {dataset.rows.length} rows • {dataset.columns.length} columns
+                        </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div className="text-sm text-gray-500">
-                        {dataset.lastUpdated ? `Updated ${new Date(dataset.lastUpdated).toLocaleDateString()}` : 'Never synced'}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => refreshDataset(dataset)}
-                          className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
-                          title="Refresh data"
-                        >
-                          <ArrowPathIcon className="w-4 h-4" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => deleteDataset(dataset.id)}
-                          className="text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          title="Delete dataset"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </motion.button>
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                      <button
+                        onClick={() => deleteDataset(dataset.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.section>
-        </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.section>
 
         {/* Add Data Source Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">Add Data Source</h2>
+                <h2 className="text-2xl font-semibold" style={{ color: '#2E2C6E' }}>Add Data Source</h2>
                 <button
                   onClick={() => {
                     setShowAddModal(false);
@@ -407,7 +341,6 @@ const DataSourcesPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Data Source Type Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-3">Data Source Type</label>
                 <div className="grid grid-cols-3 gap-3">
@@ -419,21 +352,20 @@ const DataSourcesPage: React.FC = () => {
                     <button
                       key={type}
                       onClick={() => setSelectedType(type as any)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                      className={`p-3 rounded-xl border-2 transition-all duration-200 ${
                         selectedType === type
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
-                      <Icon className="w-6 h-6 mx-auto mb-2" />
-                      <div className="text-sm font-medium">{label}</div>
+                      <Icon className="w-5 h-5 mx-auto mb-1" />
+                      <div className="text-xs font-medium">{label}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Common fields */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Name (optional)
@@ -442,12 +374,11 @@ const DataSourcesPage: React.FC = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     placeholder="Give your data source a name"
                   />
                 </div>
 
-                {/* Google Sheets fields */}
                 {selectedType === 'googleSheets' && (
                   <>
                     <div>
@@ -458,7 +389,7 @@ const DataSourcesPage: React.FC = () => {
                         type="text"
                         value={formData.spreadsheetId}
                         onChange={(e) => setFormData({ ...formData, spreadsheetId: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
                         required
                       />
@@ -474,14 +405,13 @@ const DataSourcesPage: React.FC = () => {
                         type="text"
                         value={formData.sheetName}
                         onChange={(e) => setFormData({ ...formData, sheetName: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="Sheet1"
                       />
                     </div>
                   </>
                 )}
 
-                {/* BigQuery fields */}
                 {selectedType === 'bigQuery' && (
                   <>
                     <div>
@@ -492,7 +422,7 @@ const DataSourcesPage: React.FC = () => {
                         type="text"
                         value={formData.projectId}
                         onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="my-project-id"
                         required
                       />
@@ -505,7 +435,7 @@ const DataSourcesPage: React.FC = () => {
                         type="text"
                         value={formData.datasetId}
                         onChange={(e) => setFormData({ ...formData, datasetId: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="analytics"
                         required
                       />
@@ -518,7 +448,7 @@ const DataSourcesPage: React.FC = () => {
                         type="text"
                         value={formData.tableId}
                         onChange={(e) => setFormData({ ...formData, tableId: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         placeholder="events"
                         required
                       />
@@ -526,7 +456,6 @@ const DataSourcesPage: React.FC = () => {
                   </>
                 )}
 
-                {/* CSV fields */}
                 {selectedType === 'csv' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -536,7 +465,7 @@ const DataSourcesPage: React.FC = () => {
                       type="file"
                       accept=".csv"
                       onChange={(e) => setFormData({ ...formData, csvFile: e.target.files?.[0] || null })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
@@ -566,7 +495,12 @@ const DataSourcesPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-4 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
+                      color: 'white',
+                      border: 'none'
+                    }}
                   >
                     {loading ? 'Connecting...' : 'Connect'}
                   </button>

@@ -42,7 +42,7 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   return (
-    <DashboardLayout currentPage="dashboard">
+    <DashboardLayout currentPage="dashboard" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
       <div className="space-y-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {/* Header Section */}
         <div className="text-center mb-8">
