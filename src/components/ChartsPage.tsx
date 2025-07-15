@@ -170,7 +170,7 @@ const ChartsPage: React.FC = () => {
                     <div className="flex items-center">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                            style={{ background: 'linear-gradient(135deg, #F8941F, #2E2C6E)' }}>
-                        <ChartBarIcon className="w-6 h-6 text-white" />
+                        <ChartBarIcon className="w-4 h-4 text-white" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 mb-1">{chart.name}</h3>
@@ -221,7 +221,7 @@ const ChartsPage: React.FC = () => {
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <PlusIcon className="w-6 h-6 transform rotate-45" />
+                  <PlusIcon className="w-4 h-4 transform rotate-45" />
                 </button>
               </div>
 

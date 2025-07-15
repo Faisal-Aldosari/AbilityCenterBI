@@ -60,10 +60,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         }}
       >
         <div className="max-w-6xl mx-auto flex justify-between items-center px-8">
-          {/* Logo - exact homepage style */}
-          <div className="flex items-center text-2xl font-bold">
+          {/* Logo - smaller icons */}
+          <div className="flex items-center text-xl font-bold">
             <ChartBarIcon 
-              className="h-6 w-6 mr-2" 
+              className="h-5 w-5 mr-2" 
               style={{ color: '#F8941F' }}
             />
             <span style={{ color: '#2E2C6E' }}>AbilityCenterBI</span>
@@ -90,7 +90,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     e.currentTarget.style.color = isActive ? '#F8941F' : '#333';
                   }}
                 >
-                  <Icon className="h-4 w-4 mr-2" />
+                  <Icon className="h-3 w-3 mr-2" />
                   {item.name}
                 </a>
               );
@@ -239,25 +239,42 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       )}
 
       {/* Main Content */}
-      <main className="pt-20">
+      <main className="pt-20 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </div>
       </main>
 
-      {/* Floating AI Assistant Button */}
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 py-2 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-xs text-gray-600">
+            Created by Faisal Aldosari
+          </p>
+        </div>
+      </footer>
+
+      {/* Floating AI Assistant Bubble */}
       {onAIToggle && (
         <motion.button
           onClick={onAIToggle}
-          className="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+          className="fixed bottom-20 right-6 z-30 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
           style={{
             background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
             border: 'none'
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
+          animate={{
+            y: [0, -3, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
         >
-          <SparklesIcon className="w-6 h-6 text-white mx-auto" />
+          <SparklesIcon className="w-5 h-5 text-white" />
         </motion.button>
       )}
     </div>

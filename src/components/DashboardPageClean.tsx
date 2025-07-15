@@ -46,10 +46,10 @@ const DashboardPage: React.FC = () => {
       <div className="space-y-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {/* Header Section */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#2E2C6E' }}>
+          <h1 className="text-3xl font-bold mb-4 truncate" style={{ color: '#2E2C6E' }}>
             Your Analytics <span style={{ color: '#F8941F' }}>Dashboard</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Connect your data sources, create visualizations, and generate insights with our powerful analytics platform.
           </p>
         </div>
@@ -88,7 +88,7 @@ const DashboardPage: React.FC = () => {
                       background: `linear-gradient(135deg, ${metric.color}, ${metric.color === '#F8941F' ? '#ff6b35' : '#667eea'})`
                     }}
                   >
-                    <Icon className="h-5 w-5 text-white" />
+                    <Icon className="h-4 w-4 text-white" />
                   </div>
                 </div>
                 <h3 className="text-2xl font-bold mb-1" style={{ color: '#2E2C6E' }}>
@@ -113,16 +113,16 @@ const DashboardPage: React.FC = () => {
               style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
             >
               <h2 className="text-xl font-semibold mb-4" style={{ color: '#2E2C6E' }}>
-                Get Started
+                Analytics Workflow
               </h2>
-              <p className="text-gray-600 mb-6">
-                Begin your analytics journey by connecting your data sources and creating visualizations.
+              <p className="text-gray-600 mb-6 text-sm">
+                Follow these steps to analyze your data effectively.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <a
                   href="/data"
-                  className="flex items-center p-6 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
+                  className="flex items-center p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
                   style={{
                     background: 'rgba(248, 148, 31, 0.05)',
                     textDecoration: 'none',
@@ -136,16 +136,16 @@ const DashboardPage: React.FC = () => {
                   }}
                 >
                   <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mr-3"
                     style={{ background: 'linear-gradient(135deg, #F8941F, #ff6b35)' }}
                   >
-                    <CloudArrowUpIcon className="h-6 w-6 text-white" />
+                    <CloudArrowUpIcon className="h-4 w-4 text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold" style={{ color: '#2E2C6E' }}>
-                      Connect Data
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate" style={{ color: '#2E2C6E' }}>
+                      1. Connect Data
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600 truncate">
                       Upload CSV or connect Google Sheets
                     </p>
                   </div>
@@ -153,7 +153,7 @@ const DashboardPage: React.FC = () => {
 
                 <a
                   href="/charts"
-                  className="flex items-center p-6 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
+                  className="flex items-center p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
                   style={{
                     background: 'rgba(46, 44, 110, 0.05)',
                     textDecoration: 'none',
@@ -167,20 +167,84 @@ const DashboardPage: React.FC = () => {
                   }}
                 >
                   <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mr-3"
                     style={{ background: 'linear-gradient(135deg, #2E2C6E, #667eea)' }}
                   >
-                    <ChartBarIcon className="h-6 w-6 text-white" />
+                    <ChartBarIcon className="h-4 w-4 text-white" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold" style={{ color: '#2E2C6E' }}>
-                      Create Charts
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate" style={{ color: '#2E2C6E' }}>
+                      2. Create Charts
                     </h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600 truncate">
                       Build visualizations from your data
                     </p>
                   </div>
                 </a>
+              </div>
+              
+              {/* Additional Tasks */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <a
+                  href="/reports"
+                  className="flex items-center p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.05)',
+                    textDecoration: 'none',
+                    border: '2px solid rgba(16, 185, 129, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)';
+                  }}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mr-3"
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)' }}
+                  >
+                    <DocumentChartBarIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate" style={{ color: '#2E2C6E' }}>
+                      3. Generate Reports
+                    </h3>
+                    <p className="text-xs text-gray-600 truncate">
+                      Create professional PDF reports
+                    </p>
+                  </div>
+                </a>
+
+                <button
+                  onClick={() => setShowAIPanel(true)}
+                  className="flex items-center p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1"
+                  style={{
+                    background: 'rgba(139, 92, 246, 0.05)',
+                    border: '2px solid rgba(139, 92, 246, 0.1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.05)';
+                  }}
+                >
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mr-3"
+                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' }}
+                  >
+                    <SparklesIcon className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate" style={{ color: '#2E2C6E' }}>
+                      4. AI Assistant
+                    </h3>
+                    <p className="text-xs text-gray-600 truncate">
+                      Get insights and recommendations
+                    </p>
+                  </div>
+                </button>
               </div>
             </motion.div>
 

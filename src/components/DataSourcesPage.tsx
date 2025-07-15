@@ -344,7 +344,7 @@ const DataSourcesPage: React.FC = () => {
             >
               <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
                    style={{ background: 'linear-gradient(135deg, #34D399, #10B981)' }}>
-                <TableCellsIcon className="w-8 h-8 text-white" />
+                <TableCellsIcon className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>Google Sheets</h3>
               <p className="text-gray-600">Connect spreadsheets from Google Drive</p>
@@ -365,7 +365,7 @@ const DataSourcesPage: React.FC = () => {
             >
               <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
                    style={{ background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)' }}>
-                <ServerIcon className="w-8 h-8 text-white" />
+                <ServerIcon className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>BigQuery</h3>
               <p className="text-gray-600">Connect to Google BigQuery datasets</p>
@@ -386,7 +386,7 @@ const DataSourcesPage: React.FC = () => {
             >
               <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center"
                    style={{ background: 'linear-gradient(135deg, #F8941F, #ff6b35)' }}>
-                <DocumentTextIcon className="w-8 h-8 text-white" />
+                <DocumentTextIcon className="w-5 h-5 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>CSV Upload</h3>
               <p className="text-gray-600">Upload CSV files from your computer</p>
@@ -426,7 +426,7 @@ const DataSourcesPage: React.FC = () => {
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center"
                            style={{ background: 'linear-gradient(135deg, #F8941F, #2E2C6E)' }}>
-                        <TableCellsIcon className="w-6 h-6 text-white" />
+                        <TableCellsIcon className="w-4 h-4 text-white" />
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>{dataset.name}</h3>
@@ -493,7 +493,7 @@ const DataSourcesPage: React.FC = () => {
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <XMarkIcon className="w-6 h-6" />
+                  <XMarkIcon className="w-4 h-4" />
                 </button>
               </div>
 

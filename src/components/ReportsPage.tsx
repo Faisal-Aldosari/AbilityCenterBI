@@ -288,7 +288,7 @@ const ReportsPage: React.FC = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center">
                     <div className="bg-orange-100 text-orange-600 p-3 rounded-xl mr-4">
-                      <DocumentArrowDownIcon className="w-6 h-6" />
+                      <DocumentArrowDownIcon className="w-4 h-4" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">{report.name}</h3>
