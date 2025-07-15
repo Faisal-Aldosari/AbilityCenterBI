@@ -12,6 +12,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import type { Dataset } from '../types';
 import { fetchGoogleSheetData } from '../services/googleSheets';
 import { fetchBigQueryData } from '../services/bigQuery';
@@ -19,6 +20,7 @@ import { fetchBigQueryData } from '../services/bigQuery';
 const DataSourcesPage: React.FC = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
   const [selectedType, setSelectedType] = useState<'googleSheets' | 'bigQuery' | 'csv'>('googleSheets');
   const [formData, setFormData] = useState({
     name: '',
@@ -31,6 +33,7 @@ const DataSourcesPage: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [csvPreview, setCsvPreview] = useState<{data: any[], columns: any[]} | null>(null);
 
   useEffect(() => {
     const savedDatasets = localStorage.getItem('abi_datasets');
@@ -60,6 +63,74 @@ const DataSourcesPage: React.FC = () => {
     });
     setSelectedType('googleSheets');
     setError(null);
+    setCsvPreview(null);
+  };
+
+  const previewCSVFile = async (file: File) => {
+    try {
+      const preview = await new Promise<{data: any[], columns: any[]}>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const csv = e.target?.result as string;
+            const lines = csv.split('\n').filter(line => line.trim()).slice(0, 6); // First 5 rows + header
+            
+            if (lines.length < 2) {
+              reject(new Error('CSV preview failed'));
+              return;
+            }
+
+            const parseCSVLine = (line: string): string[] => {
+              const result: string[] = [];
+              let current = '';
+              let inQuotes = false;
+              
+              for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                  if (inQuotes && nextChar === '"') {
+                    current += '"';
+                    i++;
+                  } else {
+                    inQuotes = !inQuotes;
+                  }
+                } else if (char === ',' && !inQuotes) {
+                  result.push(current.trim());
+                  current = '';
+                } else {
+                  current += char;
+                }
+              }
+              
+              result.push(current.trim());
+              return result;
+            };
+
+            const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, ''));
+            const rows = lines.slice(1).map(line => {
+              const values = parseCSVLine(line);
+              const row: any = {};
+              headers.forEach((header, index) => {
+                row[header] = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+              });
+              return row;
+            });
+
+            const columns = headers.map(header => ({ name: header, type: 'string' }));
+            resolve({ data: rows, columns });
+          } catch (error) {
+            reject(error);
+          }
+        };
+        reader.readAsText(file);
+      });
+      
+      setCsvPreview(preview);
+    } catch (error) {
+      console.error('Error previewing CSV:', error);
+    }
   };
 
   const processCSVFile = async (file: File, name: string): Promise<Dataset> => {
@@ -73,26 +144,86 @@ const DataSourcesPage: React.FC = () => {
             return;
           }
 
+          // Enhanced CSV parsing with better quote handling
+          const parseCSVLine = (line: string): string[] => {
+            const result: string[] = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              const nextChar = line[i + 1];
+              
+              if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                  current += '"';
+                  i++; // Skip next quote
+                } else {
+                  inQuotes = !inQuotes;
+                }
+              } else if (char === ',' && !inQuotes) {
+                result.push(current.trim());
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            
+            result.push(current.trim());
+            return result;
+          };
+
           const lines = csv.split('\n').filter(line => line.trim());
           if (lines.length < 2) {
-            reject(new Error('CSV file must have headers and data'));
+            reject(new Error('CSV file must have headers and at least one data row'));
             return;
           }
 
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-          const rows = lines.slice(1).map(line => {
-            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-            const row: any = {};
-            headers.forEach((header, index) => {
-              row[header] = values[index] || '';
-            });
-            return row;
-          }).filter(row => Object.values(row).some(val => val !== ''));
+          const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, ''));
+          
+          if (headers.length === 0 || headers.every(h => !h)) {
+            reject(new Error('CSV file must have valid column headers'));
+            return;
+          }
 
-          const columns = headers.map(header => ({
-            name: header,
-            type: 'string' as const,
-          }));
+          const rows = lines.slice(1)
+            .map(line => parseCSVLine(line))
+            .filter(values => values.length > 0 && values.some(val => val.trim()))
+            .map(values => {
+              const row: any = {};
+              headers.forEach((header, index) => {
+                row[header] = values[index] ? values[index].replace(/^"|"$/g, '') : '';
+              });
+              return row;
+            });
+
+          if (rows.length === 0) {
+            reject(new Error('CSV file contains no valid data rows'));
+            return;
+          }
+
+          // Auto-detect column types
+          const columns = headers.map(header => {
+            const sampleValues = rows.slice(0, 10).map(row => row[header]).filter(val => val);
+            
+            // Check if numeric
+            const isNumeric = sampleValues.length > 0 && sampleValues.every(val => !isNaN(Number(val)) && val !== '');
+            
+            // Check if date
+            const isDate = sampleValues.length > 0 && sampleValues.every(val => !isNaN(Date.parse(val)));
+            
+            let type: 'string' | 'number' | 'date' = 'string';
+            if (isNumeric) {
+              type = 'number';
+            } else if (isDate && !isNumeric) {
+              type = 'date';
+            }
+
+            return {
+              name: header,
+              type,
+            };
+          });
 
           const dataset: Dataset = {
             id: `csv_${Date.now()}`,
@@ -105,7 +236,7 @@ const DataSourcesPage: React.FC = () => {
 
           resolve(dataset);
         } catch (error) {
-          reject(new Error('Error parsing CSV file'));
+          reject(new Error(`Error parsing CSV file: ${error instanceof Error ? error.message : 'Unknown error'}`));
         }
       };
       reader.onerror = () => reject(new Error('Error reading file'));
@@ -159,7 +290,7 @@ const DataSourcesPage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout currentPage="data">
+    <DashboardLayout currentPage="data" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
       <div className="space-y-8" style={{ fontFamily: 'Poppins, sans-serif' }}>
         {/* Header */}
         <motion.div
@@ -291,7 +422,7 @@ const DataSourcesPage: React.FC = () => {
                     border: '1px solid rgba(255, 255, 255, 0.2)'
                   }}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center"
                            style={{ background: 'linear-gradient(135deg, #F8941F, #2E2C6E)' }}>
@@ -301,6 +432,9 @@ const DataSourcesPage: React.FC = () => {
                         <h3 className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>{dataset.name}</h3>
                         <p className="text-sm text-gray-600">
                           {dataset.rows.length} rows • {dataset.columns.length} columns
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Last updated: {dataset.lastUpdated ? new Date(dataset.lastUpdated).toLocaleString() : 'Unknown'}
                         </p>
                       </div>
                     </div>
@@ -312,6 +446,28 @@ const DataSourcesPage: React.FC = () => {
                       >
                         <TrashIcon className="w-5 h-5" />
                       </button>
+                    </div>
+                  </div>
+                  
+                  {/* Data Stats */}
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>
+                        {dataset.columns.filter(col => col.type === 'number').length}
+                      </div>
+                      <div className="text-xs text-gray-600">Numeric</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>
+                        {dataset.columns.filter(col => col.type === 'date').length}
+                      </div>
+                      <div className="text-xs text-gray-600">Date</div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <div className="text-lg font-semibold" style={{ color: '#2E2C6E' }}>
+                        {dataset.columns.filter(col => col.type === 'string').length}
+                      </div>
+                      <div className="text-xs text-gray-600">Text</div>
                     </div>
                   </div>
                 </motion.div>
@@ -464,13 +620,61 @@ const DataSourcesPage: React.FC = () => {
                     <input
                       type="file"
                       accept=".csv"
-                      onChange={(e) => setFormData({ ...formData, csvFile: e.target.files?.[0] || null })}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData({ ...formData, csvFile: file });
+                        if (file) {
+                          previewCSVFile(file);
+                        } else {
+                          setCsvPreview(null);
+                        }
+                      }}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
                       Upload a CSV file with headers in the first row
                     </p>
+
+                    {/* CSV Preview */}
+                    {csvPreview && (
+                      <div className="mt-4 p-4 bg-gray-50 rounded-xl">
+                        <h4 className="text-sm font-semibold mb-2" style={{ color: '#2E2C6E' }}>
+                          Preview ({csvPreview.data.length} rows shown)
+                        </h4>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b">
+                                {csvPreview.columns.slice(0, 4).map((col, index) => (
+                                  <th key={index} className="text-left p-2 font-medium text-gray-700">
+                                    {col.name}
+                                  </th>
+                                ))}
+                                {csvPreview.columns.length > 4 && (
+                                  <th className="text-left p-2 font-medium text-gray-700">...</th>
+                                )}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {csvPreview.data.slice(0, 3).map((row, rowIndex) => (
+                                <tr key={rowIndex} className="border-b">
+                                  {csvPreview.columns.slice(0, 4).map((col, colIndex) => (
+                                    <td key={colIndex} className="p-2 text-gray-600">
+                                      {String(row[col.name] || '').slice(0, 20)}
+                                      {String(row[col.name] || '').length > 20 && '...'}
+                                    </td>
+                                  ))}
+                                  {csvPreview.columns.length > 4 && (
+                                    <td className="p-2 text-gray-600">...</td>
+                                  )}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -510,6 +714,15 @@ const DataSourcesPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* AI Assistant Panel */}
+      <GeminiChatPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        datasets={datasets}
+        onSuggestChart={() => {}}
+        onGenerateReport={() => {}}
+      />
     </DashboardLayout>
   );
 };

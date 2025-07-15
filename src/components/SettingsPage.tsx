@@ -8,10 +8,12 @@ import {
   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import { useAuth } from '../contexts/AuthContext';
 
 const SettingsPage: React.FC = () => {
   const { user } = useAuth();
+  const [showAIPanel, setShowAIPanel] = useState(false);
   const [settings, setSettings] = useState({
     notifications: {
       email: true,
@@ -75,7 +77,7 @@ const SettingsPage: React.FC = () => {
   ];
 
   return (
-    <DashboardLayout currentPage="settings">
+    <DashboardLayout currentPage="settings" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -318,6 +320,15 @@ const SettingsPage: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* AI Assistant Panel */}
+      <GeminiChatPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        datasets={[]}
+        onSuggestChart={() => {}}
+        onGenerateReport={() => {}}
+      />
     </DashboardLayout>
   );
 };
