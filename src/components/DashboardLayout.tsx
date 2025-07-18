@@ -38,8 +38,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   };
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: HomeIcon, id: 'dashboard' },
-    { name: 'Data Sources', href: '/data', icon: TableCellsIcon, id: 'data' },
+    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, id: 'dashboard' },
+    { name: 'Data Sources', href: '/data-sources', icon: TableCellsIcon, id: 'data' },
     { name: 'Charts', href: '/charts', icon: ChartBarIcon, id: 'charts' },
     { name: 'Reports', href: '/reports', icon: DocumentArrowDownIcon, id: 'reports' },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon, id: 'settings' },
@@ -60,17 +60,46 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         }}
       >
         <div className="max-w-6xl mx-auto flex justify-between items-center px-8">
-          {/* Logo - smaller icons */}
-          <div className="flex items-center text-xl font-bold">
+          {/* Logo - smaller icons with home link */}
+          <a 
+            href="/"
+            className="flex items-center text-xl font-bold transition-colors duration-300"
+            style={{ textDecoration: 'none' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1';
+            }}
+          >
             <ChartBarIcon 
               className="h-5 w-5 mr-2" 
               style={{ color: '#F8941F' }}
             />
             <span style={{ color: '#2E2C6E' }}>AbilityCenterBI</span>
-          </div>
+          </a>
 
           {/* Desktop Navigation - homepage style */}
           <div className="hidden lg:flex items-center gap-8">
+            {/* Home button */}
+            <a
+              href="/"
+              className="flex items-center font-medium transition-colors duration-300"
+              style={{
+                color: '#333',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#F8941F';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#333';
+              }}
+            >
+              <HomeIcon className="h-3 w-3 mr-2" />
+              Home
+            </a>
+
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;

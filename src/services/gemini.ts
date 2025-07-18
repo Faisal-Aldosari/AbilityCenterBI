@@ -1,12 +1,16 @@
 import type { Dataset, AIChatMessage, AIAnalysis, Dashboard } from '../types';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 export class GeminiService {
   private conversationHistory: AIChatMessage[] = [];
 
   async analyzeData(dataset: Dataset, question: string): Promise<string> {
+    if (!GEMINI_API_KEY) {
+      throw new Error('Gemini API key not configured');
+    }
+
     const prompt = this.buildDataAnalysisPrompt(dataset, question);
     
     try {
@@ -15,6 +19,22 @@ export class GeminiService {
     } catch (error) {
       console.error('Error analyzing data with Gemini:', error);
       throw new Error('Failed to analyze data');
+    }
+  }
+
+  async generateResponse(message: string, datasets: Dataset[]): Promise<string> {
+    if (!GEMINI_API_KEY) {
+      return this.generateFallbackResponse(message, datasets);
+    }
+
+    const prompt = this.buildChatPrompt(message, datasets);
+    
+    try {
+      const response = await this.callGeminiAPI(prompt);
+      return response;
+    } catch (error) {
+      console.error('Error generating response with Gemini:', error);
+      return this.generateFallbackResponse(message, datasets);
     }
   }
 
@@ -247,6 +267,75 @@ User Message: ${message}
 
 Provide helpful, accurate responses about data analysis, chart creation, financial insights, and reporting. If the user asks to create charts or reports, provide specific recommendations with technical details.
 `;
+  }
+
+  private generateFallbackResponse(message: string, datasets: Dataset[]): string {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('chart') || lowerMessage.includes('visualization')) {
+      return `I can help you create charts from your data! You have ${datasets.length} dataset(s) available. Here are some chart suggestions:
+
+• Bar charts for comparing categories
+• Line charts for trends over time
+• Pie charts for showing proportions
+• Scatter plots for correlations
+
+Would you like me to suggest a specific chart type based on your data?`;
+    }
+    
+    if (lowerMessage.includes('report') || lowerMessage.includes('export')) {
+      return `I can help you generate reports! Here's what I can do:
+
+• Create comprehensive PDF reports with your charts and insights
+• Export data to Excel or CSV formats
+• Generate summary statistics and key findings
+• Include data visualizations in your reports
+
+What type of report would you like to create?`;
+    }
+    
+    if (lowerMessage.includes('data') || lowerMessage.includes('connect')) {
+      return `I can help you work with your data! Currently you have ${datasets.length} dataset(s) connected. Here's what you can do:
+
+• Upload CSV files for analysis
+• Connect Google Sheets directly
+• Filter and transform your data
+• Combine multiple data sources
+
+Do you need help connecting a new data source?`;
+    }
+    
+    if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
+      return `I'm your AI assistant for data analysis! I can help you with:
+
+📊 **Charts & Visualizations**
+- Suggest the best chart types for your data
+- Help create interactive dashboards
+
+📋 **Reports & Exports**
+- Generate comprehensive PDF reports
+- Export data in multiple formats
+
+🔗 **Data Management**
+- Connect new data sources
+- Transform and filter data
+
+💡 **Insights & Analysis**
+- Analyze trends and patterns
+- Provide data-driven recommendations
+
+What would you like to explore today?`;
+    }
+    
+    return `I'm here to help you analyze your data and create insights! You currently have ${datasets.length} dataset(s) connected. 
+
+I can assist with:
+• Creating charts and visualizations
+• Generating reports and exports
+• Analyzing your data for trends
+• Connecting new data sources
+
+What would you like to work on?`;
   }
 
   private calculateBasicStats(dataset: Dataset): any {

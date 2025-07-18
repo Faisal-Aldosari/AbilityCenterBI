@@ -8,16 +8,23 @@ export const fetchGoogleSheetData = async (
   try {
     const accessToken = getAccessToken();
     if (!accessToken) {
-      throw new Error('User not authenticated');
+      throw new Error('Please sign in with Google to access your sheets');
     }
 
     // First, get sheet metadata
     const metadataResponse = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?access_token=${accessToken}`
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${import.meta.env.VITE_GOOGLE_API_KEY}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
     );
     
     if (!metadataResponse.ok) {
-      throw new Error('Failed to fetch spreadsheet metadata');
+      const errorData = await metadataResponse.json();
+      console.error('Metadata fetch error:', errorData);
+      throw new Error(`Failed to fetch spreadsheet: ${errorData.error?.message || 'Unknown error'}`);
     }
     
     const metadata = await metadataResponse.json();
@@ -33,11 +40,18 @@ export const fetchGoogleSheetData = async (
     
     // Fetch sheet data
     const dataResponse = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?access_token=${accessToken}`
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${import.meta.env.VITE_GOOGLE_API_KEY}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
     );
     
     if (!dataResponse.ok) {
-      throw new Error('Failed to fetch sheet data');
+      const errorData = await dataResponse.json();
+      console.error('Data fetch error:', errorData);
+      throw new Error(`Failed to fetch sheet data: ${errorData.error?.message || 'Unknown error'}`);
     }
     
     const data = await dataResponse.json();
@@ -96,15 +110,22 @@ export const listGoogleSheets = async (): Promise<Array<{ id: string; name: stri
   try {
     const accessToken = getAccessToken();
     if (!accessToken) {
-      throw new Error('User not authenticated');
+      throw new Error('Please sign in with Google to access your sheets');
     }
 
     const response = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.spreadsheet'&access_token=${accessToken}`
+      `https://www.googleapis.com/drive/v3/files?q=mimeType='application/vnd.google-apps.spreadsheet'&key=${import.meta.env.VITE_GOOGLE_API_KEY}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
     );
     
     if (!response.ok) {
-      throw new Error('Failed to list Google Sheets');
+      const errorData = await response.json();
+      console.error('List sheets error:', errorData);
+      throw new Error(`Failed to list Google Sheets: ${errorData.error?.message || 'Unknown error'}`);
     }
     
     const data = await response.json();

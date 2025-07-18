@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ChartBarIcon,
@@ -9,36 +9,15 @@ import {
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
 import GeminiChatPanel from './GeminiChatPanel';
-import type { Chart, Dataset } from '../types';
+import { useDataSources } from '../hooks/useDataSources';
+import { useCharts } from '../hooks/useCharts';
 
 const ChartsPage: React.FC = () => {
-  const [charts, setCharts] = useState<Chart[]>([]);
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { datasets } = useDataSources();
+  const { charts, createChart, deleteChart } = useCharts(datasets);
+  
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
-
-  useEffect(() => {
-    const loadData = () => {
-      try {
-        const savedCharts = localStorage.getItem('abi_charts');
-        const savedDatasets = localStorage.getItem('abi_datasets');
-        
-        if (savedCharts) {
-          setCharts(JSON.parse(savedCharts));
-        }
-        if (savedDatasets) {
-          setDatasets(JSON.parse(savedDatasets));
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
 
   const handleCreateChart = (type: string) => {
     if (datasets.length === 0) {
@@ -46,32 +25,45 @@ const ChartsPage: React.FC = () => {
       return;
     }
 
-    const newChart: Chart = {
-      id: `chart_${Date.now()}`,
+    // Use a simple configuration for now
+    const config: any = {
+      title: `New ${type} Chart`,
+      showLegend: true,
+      showGrid: true,
+    };
+
+    // If it's a pie chart, use first string column for category and first number column for value
+    if (type === 'pie') {
+      const stringColumn = datasets[0].columns.find(col => col.type === 'string');
+      const numberColumn = datasets[0].columns.find(col => col.type === 'number');
+      
+      if (stringColumn && numberColumn) {
+        config.categoryColumn = stringColumn.name;
+        config.valueColumn = numberColumn.name;
+      }
+    } else {
+      // For bar/line charts, use first column for x-axis and first number column for y-axis
+      const firstColumn = datasets[0].columns[0];
+      const numberColumn = datasets[0].columns.find(col => col.type === 'number');
+      
+      if (firstColumn && numberColumn) {
+        config.xAxis = firstColumn.name;
+        config.yAxis = numberColumn.name;
+      }
+    }
+
+    createChart({
       name: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Chart`,
       type: type as any,
       datasetId: datasets[0].id,
-      config: {
-        title: `New ${type} Chart`,
-        showLegend: true,
-        showGrid: true,
-      },
-      position: { x: 0, y: 0 },
-      size: { width: 400, height: 300 },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+      chartConfig: config,
+    });
 
-    const updatedCharts = [...charts, newChart];
-    setCharts(updatedCharts);
-    localStorage.setItem('abi_charts', JSON.stringify(updatedCharts));
     setShowCreateModal(false);
   };
 
   const handleDeleteChart = (id: string) => {
-    const updatedCharts = charts.filter(chart => chart.id !== id);
-    setCharts(updatedCharts);
-    localStorage.setItem('abi_charts', JSON.stringify(updatedCharts));
+    deleteChart(id);
   };
 
   const chartTypes = [
@@ -82,19 +74,6 @@ const ChartsPage: React.FC = () => {
     { type: 'scatter', name: 'Scatter Plot', icon: '⚪', gradient: 'linear-gradient(135deg, #EF4444, #DC2626)' },
     { type: 'doughnut', name: 'Doughnut Chart', icon: '🍩', gradient: 'linear-gradient(135deg, #F8941F, #2E2C6E)' },
   ];
-
-  if (loading) {
-    return (
-      <DashboardLayout currentPage="charts">
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4" style={{ borderColor: '#F8941F' }}></div>
-            <p className="text-gray-600 text-lg mt-4">Loading charts...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout currentPage="charts" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
@@ -170,7 +149,7 @@ const ChartsPage: React.FC = () => {
                     <div className="flex items-center">
                       <div className="w-12 h-12 rounded-xl flex items-center justify-center mr-4"
                            style={{ background: 'linear-gradient(135deg, #F8941F, #2E2C6E)' }}>
-                        <ChartBarIcon className="w-4 h-4 text-white" />
+                        <ChartBarIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 mb-1">{chart.name}</h3>
@@ -221,7 +200,7 @@ const ChartsPage: React.FC = () => {
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
-                  <PlusIcon className="w-4 h-4 transform rotate-45" />
+                  <PlusIcon className="w-6 h-6 transform rotate-45" />
                 </button>
               </div>
 

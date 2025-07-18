@@ -9,12 +9,13 @@ export interface User {
 export interface Dataset {
   id: string;
   name: string;
-  type: 'googleSheets' | 'bigQuery';
+  type: 'googleSheets' | 'bigQuery' | 'csv';
   url?: string;
   spreadsheetId?: string;
   sheetName?: string;
   datasetId?: string;
   tableId?: string;
+  file?: File;
   columns: Column[];
   rows: any[];
   lastUpdated?: Date;
@@ -72,6 +73,8 @@ export type ChartType =
 export interface ChartConfig {
   xAxis?: string;
   yAxis?: string | string[];
+  categoryColumn?: string;
+  valueColumn?: string;
   groupBy?: string;
   filters?: Filter[];
   colors?: string[];
