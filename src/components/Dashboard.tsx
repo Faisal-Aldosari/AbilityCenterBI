@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   TableCellsIcon,
   ChartBarIcon,
   DocumentArrowDownIcon,
   SparklesIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
-  EyeIcon,
   ArrowUpIcon,
   ArrowDownIcon,
 } from '@heroicons/react/24/outline';
@@ -30,7 +29,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Generate recent activity based on datasets and charts
-    const activities = [];
+    const activities: Array<{
+      id: string;
+      type: string;
+      title: string;
+      time: Date;
+      status: string;
+    }> = [];
     
     datasets.forEach((dataset, index) => {
       activities.push({
@@ -88,7 +93,7 @@ export default function Dashboard() {
     {
       label: 'Data Points',
       value: datasets.reduce((total, dataset) => total + dataset.rows.length, 0).toLocaleString(),
-      icon: TrendingUpIcon,
+      icon: ArrowTrendingUpIcon,
       color: '#8B5CF6',
       href: '/data-sources',
       change: '+15%',

@@ -94,7 +94,6 @@ export default function ChartsPage() {
   const [yAxisColumn, setYAxisColumn] = useState('');
   const [aggregationType, setAggregationType] = useState('sum');
   const [chartColors, setChartColors] = useState(['#F8941F', '#2E2C6E', '#10B981', '#8B5CF6']);
-  const [showPreview, setShowPreview] = useState(false);
   const [filterValues, setFilterValues] = useState<{[key: string]: string}>({});
 
   const handleCreateChart = () => {
@@ -128,7 +127,7 @@ export default function ChartsPage() {
         }))
       },
       position: { x: 0, y: 0 },
-      size: { width: 500, height: 350 },
+      size: { width: 500, height: 350 } as const,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -143,7 +142,6 @@ export default function ChartsPage() {
     setYAxisColumn('');
     setFilterValues({});
     setShowCreateForm(false);
-    setShowPreview(false);
   };
 
   if (loading) {
