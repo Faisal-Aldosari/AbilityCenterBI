@@ -436,7 +436,7 @@ export class DataTransformationService {
     
     // Basic math operations only
     try {
-      // eslint-disable-next-line no-eval
+       
       return eval(expression);
     } catch {
       return 0;

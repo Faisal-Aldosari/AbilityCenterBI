@@ -9,22 +9,17 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
-  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
+import Footer from './Footer';
 import toast from 'react-hot-toast';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   currentPage?: string;
-  onAIToggle?: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ 
-  children, 
-  currentPage = 'dashboard',
-  onAIToggle
-}) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage = 'dashboard' }) => {
   const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -39,273 +34,130 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, id: 'dashboard' },
-    { name: 'Data Sources', href: '/data-sources', icon: TableCellsIcon, id: 'data' },
+    { name: 'Data Sources', href: '/data-sources', icon: TableCellsIcon, id: 'data-sources' },
     { name: 'Charts', href: '/charts', icon: ChartBarIcon, id: 'charts' },
     { name: 'Reports', href: '/reports', icon: DocumentArrowDownIcon, id: 'reports' },
     { name: 'Settings', href: '/settings', icon: Cog6ToothIcon, id: 'settings' },
   ];
 
   return (
-    <div className="min-h-screen" style={{ 
-      fontFamily: 'Poppins, sans-serif',
-      backgroundColor: '#f8f9fa'
-    }}>
-      {/* Navigation Header - exact homepage style */}
-      <nav 
-        className="fixed top-0 w-full z-50 transition-all duration-300"
-        style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(10px)',
-          padding: '1rem 0'
-        }}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Mobile sidebar */}
+      <motion.div
+        initial={false}
+        animate={{ x: sidebarOpen ? 0 : '-100%' }}
+        transition={{ type: 'tween', duration: 0.3 }}
+        className="fixed inset-0 z-50 lg:hidden"
       >
-        <div className="max-w-6xl mx-auto flex justify-between items-center px-8">
-          {/* Logo - smaller icons with home link */}
-          <a 
-            href="/"
-            className="flex items-center text-xl font-bold transition-colors duration-300"
-            style={{ textDecoration: 'none' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
-          >
-            <ChartBarIcon 
-              className="h-5 w-5 mr-2" 
-              style={{ color: '#F8941F' }}
-            />
-            <span style={{ color: '#2E2C6E' }}>AbilityCenterBI</span>
-          </a>
-
-          {/* Desktop Navigation - homepage style */}
-          <div className="hidden lg:flex items-center gap-8">
-            {/* Home button */}
-            <a
-              href="/"
-              className="flex items-center font-medium transition-colors duration-300"
-              style={{
-                color: '#333',
-                textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#F8941F';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#333';
-              }}
-            >
-              <HomeIcon className="h-3 w-3 mr-2" />
-              Home
-            </a>
-
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentPage === item.id;
-              return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center font-medium transition-colors duration-300"
-                  style={{
-                    color: isActive ? '#F8941F' : '#333',
-                    textDecoration: 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#F8941F';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = isActive ? '#F8941F' : '#333';
-                  }}
-                >
-                  <Icon className="h-3 w-3 mr-2" />
-                  {item.name}
-                </a>
-              );
-            })}
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <ChartBarIcon className="w-5 h-5 text-white" />
+              </div>
+              <span className="font-bold text-gray-900">AbilityCenterBI</span>
+            </div>
+            <button onClick={() => setSidebarOpen(false)}>
+              <XMarkIcon className="w-6 h-6 text-gray-500" />
+            </button>
           </div>
+          <nav className="mt-8">
+            {navigation.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+                  currentPage === item.id
+                    ? 'bg-orange-50 border-r-2 border-orange-500 text-orange-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.name}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </motion.div>
 
-          {/* User Actions - homepage CTA style */}
-          <div className="flex items-center gap-4">
-            {user && (
-              <div className="hidden lg:flex items-center gap-3">
+      {/* Desktop sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex flex-col flex-grow bg-white border-r border-gray-200 pt-5 pb-4 overflow-y-auto">
+          <div className="flex items-center flex-shrink-0 px-6">
+            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <ChartBarIcon className="w-5 h-5 text-white" />
+            </div>
+            <span className="ml-3 font-bold text-gray-900 text-lg">AbilityCenterBI</span>
+          </div>
+          <nav className="mt-8 flex-grow">
+            {navigation.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${
+                  currentPage === item.id
+                    ? 'bg-orange-50 border-r-2 border-orange-500 text-orange-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <item.icon className="w-5 h-5 mr-3" />
+                {item.name}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="lg:pl-64 flex flex-col flex-1">
+        {/* Top navigation */}
+        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow-sm border-b border-gray-200">
+          <button
+            type="button"
+            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500 lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+          <div className="flex-1 px-4 flex justify-between items-center">
+            <div className="flex-1">
+              <h1 className="text-lg font-semibold text-gray-900 capitalize">
+                {currentPage === 'dashboard' ? 'Dashboard' : currentPage}
+              </h1>
+            </div>
+            <div className="ml-4 flex items-center md:ml-6">
+              {/* Profile dropdown */}
+              <div className="relative flex items-center space-x-3">
                 <img
                   className="h-8 w-8 rounded-full"
-                  src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || 'User')}&background=F8941F&color=fff`}
-                  alt={user.name || 'User'}
+                  src={user?.picture}
+                  alt={user?.name}
                 />
-                <span className="text-sm font-medium" style={{ color: '#2E2C6E' }}>
-                  {user.name || user.email}
-                </span>
-              </div>
-            )}
-            
-            <button
-              onClick={handleSignOut}
-              className="font-semibold transition-all duration-300 rounded-full px-6 py-3"
-              style={{
-                background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
-                color: 'white',
-                textDecoration: 'none',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 10px 20px rgba(248, 148, 31, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2 inline" />
-              Sign Out
-            </button>
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-md"
-              style={{ color: '#333' }}
-            >
-              {sidebarOpen ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <Bars3Icon className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Sidebar */}
-      {sidebarOpen && (
-        <motion.div
-          initial={{ x: '-100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '-100%' }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed inset-0 z-40 lg:hidden"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-          <div 
-            className="fixed inset-y-0 left-0 w-72 shadow-2xl"
-            style={{ background: 'white' }}
-          >
-            <div 
-              className="flex items-center justify-between p-6 border-b"
-              style={{ borderColor: 'rgba(0,0,0,0.1)' }}
-            >
-              <div className="flex items-center gap-3">
-                <ChartBarIcon className="h-8 w-8" style={{ color: '#F8941F' }} />
-                <span className="font-bold text-xl" style={{ color: '#2E2C6E' }}>
-                  AbilityCenterBI
-                </span>
-              </div>
-              <button 
-                onClick={() => setSidebarOpen(false)} 
-                style={{ color: '#333' }}
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <nav className="mt-6 px-4">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentPage === item.id;
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center px-4 py-3 mb-2 font-medium rounded-xl transition-all duration-200"
-                    style={{
-                      background: isActive ? 'linear-gradient(135deg, #F8941F, #2E2C6E)' : 'transparent',
-                      color: isActive ? 'white' : '#333',
-                      textDecoration: 'none'
-                    }}
-                  >
-                    <Icon className="w-5 h-5 mr-3" />
-                    {item.name}
-                  </a>
-                );
-              })}
-            </nav>
-            
-            {/* User section for mobile */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t" style={{ borderColor: 'rgba(0,0,0,0.1)', background: '#f8f9fa' }}>
-              {user && (
-                <div className="flex items-center mb-3">
-                  <img
-                    src={user.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || 'User')}&background=F8941F&color=fff`}
-                    alt={user.name || 'User'}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium" style={{ color: '#2E2C6E' }}>
-                      {user.name || user.email}
-                    </p>
-                  </div>
+                <div className="hidden md:block">
+                  <div className="text-sm font-medium text-gray-700">{user?.name}</div>
+                  <div className="text-xs text-gray-500">{user?.email}</div>
                 </div>
-              )}
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors"
-                style={{
-                  background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
-                  color: 'white',
-                  border: 'none'
-                }}
-              >
-                <ArrowRightOnRectangleIcon className="w-4 h-4 mr-2" />
-                Sign Out
-              </button>
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Sign out"
+                >
+                  <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
-        </motion.div>
-      )}
+        </div>
 
-      {/* Main Content */}
-      <main className="pt-20 pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page content */}
+        <main className="flex-1">
           {children}
-        </div>
-      </main>
+        </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 py-2 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-gray-600">
-            Created by Faisal Aldosari
-          </p>
-        </div>
-      </footer>
-
-      {/* Floating AI Assistant Bubble */}
-      {onAIToggle && (
-        <motion.button
-          onClick={onAIToggle}
-          className="fixed bottom-20 right-6 z-30 w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-          style={{
-            background: 'linear-gradient(135deg, #F8941F, #2E2C6E)',
-            border: 'none'
-          }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          animate={{
-            y: [0, -3, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <SparklesIcon className="w-5 h-5 text-white" />
-        </motion.button>
-      )}
+        {/* Footer */}
+        <Footer />
+      </div>
     </div>
   );
 };

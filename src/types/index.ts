@@ -9,23 +9,20 @@ export interface User {
 export interface Dataset {
   id: string;
   name: string;
-  type: 'googleSheets' | 'bigQuery' | 'csv';
+  type: 'googleSheets' | 'bigQuery';
   url?: string;
   spreadsheetId?: string;
   sheetName?: string;
   datasetId?: string;
   tableId?: string;
-  file?: File;
   columns: Column[];
   rows: any[];
-  lastUpdated?: Date;
-  lastSync?: string;
+  lastUpdated: Date;
 }
 
 export interface Column {
-  id?: string;
   name: string;
-  type: 'string' | 'number' | 'date' | 'boolean' | 'timestamp';
+  type: 'string' | 'number' | 'date' | 'boolean';
   nullable?: boolean;
 }
 
@@ -73,8 +70,6 @@ export type ChartType =
 export interface ChartConfig {
   xAxis?: string;
   yAxis?: string | string[];
-  categoryColumn?: string;
-  valueColumn?: string;
   groupBy?: string;
   filters?: Filter[];
   colors?: string[];
@@ -82,6 +77,8 @@ export interface ChartConfig {
   showLegend?: boolean;
   showGrid?: boolean;
   maxValue?: number; // For gauge charts
+  chartType?: ChartType;
+  dataColumns?: string[];
 }
 
 export interface Filter {
@@ -207,15 +204,21 @@ export interface Dashboard {
 export interface Report {
   id: string;
   name: string;
-  dashboardId: string;
-  exportFormat: 'pdf' | 'excel' | 'csv';
-  settings: ReportSettings;
+  description?: string;
+  format: 'pdf' | 'excel';
+  datasetIds: string[];
+  chartIds: string[];
+  config: ReportConfig;
+  status: 'pending' | 'generating' | 'completed' | 'failed';
+  fileUrl?: string;
+  generatedAt: Date;
   createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface ReportSettings {
+export interface ReportConfig {
   includeCharts: boolean;
-  includeData: boolean;
+  includeRawData: boolean;
   pageSize: 'A4' | 'letter' | 'legal';
   orientation: 'portrait' | 'landscape';
 }

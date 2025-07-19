@@ -1,10 +1,8 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { NotificationProvider } from './components/NotificationSystem';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { NotFoundPage } from './components/NotFoundPage';
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import DataSourcesPage from './components/DataSourcesPage';
@@ -12,7 +10,6 @@ import ChartsPage from './components/ChartsPage';
 import ReportsPage from './components/ReportsPage';
 import SettingsPage from './components/SettingsPage';
 import LoadingSpinner from './components/LoadingSpinner';
-import type { ReactNode } from 'react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +20,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -33,7 +30,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
-const PublicRoute = ({ children }: { children: ReactNode }) => {
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
@@ -45,114 +42,93 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
 
 function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <NotificationProvider>
-            <Router>
-              <div className="App">
-                <Routes>
-                  <Route
-                    path="/login"
-                    element={
-                      <PublicRoute>
-                        <LoginPage />
-                      </PublicRoute>
-                    }
-                  />
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/data"
-                    element={
-                      <ProtectedRoute>
-                        <DataSourcesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/data-sources"
-                    element={
-                      <ProtectedRoute>
-                        <DataSourcesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/charts"
-                    element={
-                      <ProtectedRoute>
-                        <ChartsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/reports"
-                    element={
-                      <ProtectedRoute>
-                        <ReportsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/settings"
-                    element={
-                      <ProtectedRoute>
-                        <SettingsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route path="/404" element={<NotFoundPage />} />
-                  <Route path="*" element={<Navigate to="/404" replace />} />
-                </Routes>
-                <Toaster
-                  position="top-right"
-                  toastOptions={{
-                    duration: 4000,
-                    style: {
-                      background: '#363636',
-                      color: '#fff',
-                    },
-                    success: {
-                      style: {
-                        background: '#10B981',
-                      },
-                    },
-                    error: {
-                      style: {
-                        background: '#EF4444',
-                      },
-                    },
-                  }}
-                />
-              </div>
-            </Router>
-          </NotificationProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/data-sources"
+                element={
+                  <ProtectedRoute>
+                    <DataSourcesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/charts"
+                element={
+                  <ProtectedRoute>
+                    <ChartsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+                success: {
+                  style: {
+                    background: '#10B981',
+                  },
+                },
+                error: {
+                  style: {
+                    background: '#EF4444',
+                  },
+                },
+              }}
+            />
+          </div>
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

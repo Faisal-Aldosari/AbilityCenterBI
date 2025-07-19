@@ -8,15 +8,15 @@ import {
   ChartBarIcon,
   LightBulbIcon,
 } from '@heroicons/react/24/outline';
-import type { AIChatMessage, Dataset } from '../types';
+import type { AIChatMessage, Dataset, ChartSuggestion, ReportGenerationConfig } from '../types';
 import { GeminiService } from '../services/gemini';
 
 interface GeminiChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
   datasets: Dataset[];
-  onSuggestChart: (suggestion: any) => void;
-  onGenerateReport: (report: any) => void;
+  onSuggestChart: (suggestion: ChartSuggestion) => void;
+  onGenerateReport: (report: ReportGenerationConfig) => void;
 }
 
 const GeminiChatPanel: React.FC<GeminiChatPanelProps> = ({

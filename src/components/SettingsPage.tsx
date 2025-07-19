@@ -1,336 +1,210 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   UserCircleIcon,
+  CogIcon,
   BellIcon,
   ShieldCheckIcon,
-  PaintBrushIcon,
-  GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
-import GeminiChatPanel from './GeminiChatPanel';
-import { useAuth } from '../contexts/AuthContext';
 
-const SettingsPage: React.FC = () => {
-  const { user } = useAuth();
-  const [showAIPanel, setShowAIPanel] = useState(false);
-  const [settings, setSettings] = useState({
-    notifications: {
-      email: true,
-      desktop: false,
-      updates: true,
-    },
-    appearance: {
-      theme: 'light',
-      language: 'en',
-    },
-    privacy: {
-      analytics: true,
-      cookies: true,
-    },
-  });
-
-  const handleSettingChange = (category: string, setting: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
-        [setting]: value,
-      },
-    }));
-    
-    // Save to localStorage
-    localStorage.setItem('abi_settings', JSON.stringify(settings));
-  };
-
-  const settingsSections = [
-    {
-      id: 'profile',
-      title: 'Profile',
-      icon: UserCircleIcon,
-      description: 'Manage your account information',
-    },
-    {
-      id: 'notifications',
-      title: 'Notifications',
-      icon: BellIcon,
-      description: 'Configure notification preferences',
-    },
-    {
-      id: 'appearance',
-      title: 'Appearance',
-      icon: PaintBrushIcon,
-      description: 'Customize the look and feel',
-    },
-    {
-      id: 'privacy',
-      title: 'Privacy & Security',
-      icon: ShieldCheckIcon,
-      description: 'Control your privacy settings',
-    },
-    {
-      id: 'integrations',
-      title: 'Data Sources',
-      icon: GlobeAltIcon,
-      description: 'Manage connected services',
-    },
-  ];
+export default function SettingsPage() {
+  const [notifications, setNotifications] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [theme, setTheme] = useState('light');
 
   return (
-    <DashboardLayout currentPage="settings" onAIToggle={() => setShowAIPanel(!showAIPanel)}>
-      <div className="p-6 max-w-7xl mx-auto">
+    <DashboardLayout currentPage="settings">
+      <div className="py-8 px-8 min-h-full">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-          <p className="text-lg text-gray-600">
-            Manage your account preferences and application settings.
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#2E2C6E' }}>
+            Settings
+          </h1>
+          <p className="text-gray-600">
+            Manage your account preferences and application settings
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Settings Navigation */}
+        {/* Settings Sections */}
+        <div className="space-y-8">
+          {/* Profile Settings */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-1"
+            className="bg-white rounded-2xl p-8"
+            style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
           >
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Categories</h2>
-              <nav className="space-y-2">
-                {settingsSections.map((section) => (
-                  <button
-                    key={section.id}
-                    className="w-full flex items-center p-3 text-left rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <section.icon className="w-5 h-5 text-gray-500 mr-3" />
-                    <div>
-                      <div className="font-medium text-gray-900">{section.title}</div>
-                      <div className="text-sm text-gray-500">{section.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </nav>
+            <div className="flex items-center mb-6">
+              <UserCircleIcon className="h-8 w-8 mr-3" style={{ color: '#F8941F' }} />
+              <h2 className="text-xl font-semibold" style={{ color: '#2E2C6E' }}>
+                Profile
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Your full name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="your.email@company.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
             </div>
           </motion.div>
 
-          {/* Settings Content */}
+          {/* Application Settings */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-2 space-y-6"
+            className="bg-white rounded-2xl p-8"
+            style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
           >
-            {/* Profile Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center mb-6">
-                <UserCircleIcon className="w-6 h-6 text-orange-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+            <div className="flex items-center mb-6">
+              <CogIcon className="h-8 w-8 mr-3" style={{ color: '#2E2C6E' }} />
+              <h2 className="text-xl font-semibold" style={{ color: '#2E2C6E' }}>
+                Application
+              </h2>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-gray-900">Theme</h3>
+                  <p className="text-gray-500 text-sm">Choose your preferred theme</p>
+                </div>
+                <select
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="auto">Auto</option>
+                </select>
               </div>
               
-              <div className="flex items-center space-x-4 mb-6">
-                <img
-                  src={user?.picture}
-                  alt={user?.name}
-                  className="w-16 h-16 rounded-full border-2 border-gray-200"
-                />
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{user?.name}</h3>
-                  <p className="text-gray-600">{user?.email}</p>
+                  <h3 className="font-medium text-gray-900">Auto Refresh</h3>
+                  <p className="text-gray-500 text-sm">Automatically refresh data every 5 minutes</p>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Display Name
-                  </label>
+                <label className="relative inline-flex items-center cursor-pointer">
                   <input
-                    type="text"
-                    value={user?.name || ''}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                    type="checkbox"
+                    checked={autoRefresh}
+                    onChange={(e) => setAutoRefresh(e.target.checked)}
+                    className="sr-only peer"
                   />
-                </div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Notification Settings */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-8"
+            style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
+          >
+            <div className="flex items-center mb-6">
+              <BellIcon className="h-8 w-8 mr-3" style={{ color: '#10B981' }} />
+              <h2 className="text-xl font-semibold" style={{ color: '#2E2C6E' }}>
+                Notifications
+              </h2>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
+                  <h3 className="font-medium text-gray-900">Enable Notifications</h3>
+                  <p className="text-gray-500 text-sm">Receive notifications about reports and data updates</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
                   <input
-                    type="email"
-                    value={user?.email || ''}
-                    readOnly
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                    type="checkbox"
+                    checked={notifications}
+                    onChange={(e) => setNotifications(e.target.checked)}
+                    className="sr-only peer"
                   />
-                </div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
               </div>
             </div>
+          </motion.div>
 
-            {/* Notifications Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center mb-6">
-                <BellIcon className="w-6 h-6 text-orange-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">Notification Preferences</h2>
-              </div>
+          {/* Security Settings */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-8"
+            style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
+          >
+            <div className="flex items-center mb-6">
+              <ShieldCheckIcon className="h-8 w-8 mr-3" style={{ color: '#8B5CF6' }} />
+              <h2 className="text-xl font-semibold" style={{ color: '#2E2C6E' }}>
+                Security
+              </h2>
+            </div>
+            
+            <div className="space-y-4">
+              <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                <h3 className="font-medium text-gray-900 mb-1">Change Password</h3>
+                <p className="text-gray-500 text-sm">Update your account password</p>
+              </button>
               
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Email Notifications</h3>
-                    <p className="text-sm text-gray-600">Receive updates via email</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.notifications.email}
-                      onChange={(e) => handleSettingChange('notifications', 'email', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Desktop Notifications</h3>
-                    <p className="text-sm text-gray-600">Show browser notifications</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.notifications.desktop}
-                      onChange={(e) => handleSettingChange('notifications', 'desktop', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Product Updates</h3>
-                    <p className="text-sm text-gray-600">Get notified about new features</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.notifications.updates}
-                      onChange={(e) => handleSettingChange('notifications', 'updates', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Appearance Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center mb-6">
-                <PaintBrushIcon className="w-6 h-6 text-orange-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">Appearance</h2>
-              </div>
+              <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                <h3 className="font-medium text-gray-900 mb-1">Two-Factor Authentication</h3>
+                <p className="text-gray-500 text-sm">Add an extra layer of security to your account</p>
+              </button>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Theme
-                  </label>
-                  <select
-                    value={settings.appearance.theme}
-                    onChange={(e) => handleSettingChange('appearance', 'theme', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="auto">Auto</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Language
-                  </label>
-                  <select
-                    value={settings.appearance.language}
-                    onChange={(e) => handleSettingChange('appearance', 'language', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                    <option value="de">Deutsch</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Privacy Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center mb-6">
-                <ShieldCheckIcon className="w-6 h-6 text-orange-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">Privacy & Security</h2>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Analytics Data</h3>
-                    <p className="text-sm text-gray-600">Help improve the product by sharing usage data</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.privacy.analytics}
-                      onChange={(e) => handleSettingChange('privacy', 'analytics', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Cookies</h3>
-                    <p className="text-sm text-gray-600">Allow cookies for enhanced functionality</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.privacy.cookies}
-                      onChange={(e) => handleSettingChange('privacy', 'cookies', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
-                Save Changes
+              <button className="w-full text-left px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                <h3 className="font-medium text-gray-900 mb-1">Connected Apps</h3>
+                <p className="text-gray-500 text-sm">Manage third-party app connections</p>
               </button>
             </div>
           </motion.div>
+
+          {/* Save Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex justify-end"
+          >
+            <button
+              className="px-8 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:transform hover:-translate-y-1"
+              style={{ background: 'linear-gradient(135deg, #2E2C6E, #667eea)' }}
+            >
+              Save Changes
+            </button>
+          </motion.div>
         </div>
       </div>
-
-      {/* AI Assistant Panel */}
-      <GeminiChatPanel
-        isOpen={showAIPanel}
-        onClose={() => setShowAIPanel(false)}
-        datasets={[]}
-        onSuggestChart={() => {}}
-        onGenerateReport={() => {}}
-      />
     </DashboardLayout>
   );
-};
-
-export default SettingsPage;
+}
