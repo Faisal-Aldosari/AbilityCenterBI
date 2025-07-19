@@ -79,6 +79,7 @@ export interface ChartConfig {
   maxValue?: number; // For gauge charts
   chartType?: ChartType;
   dataColumns?: string[];
+  aggregation?: string;
 }
 
 export interface Filter {

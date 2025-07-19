@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   DocumentArrowDownIcon,
   DocumentTextIcon,
@@ -9,8 +9,10 @@ import {
   EyeIcon,
   TrashIcon,
   ArrowDownTrayIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import ReportPreview from './ReportPreview';
 import { useDataSources } from '../hooks/useDataSources';
 import { useCharts } from '../hooks/useCharts';
 import type { Report } from '../types';
@@ -31,6 +33,8 @@ export default function ReportsPage() {
   const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
   const [selectedCharts, setSelectedCharts] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewReport, setPreviewReport] = useState<Report | null>(null);
 
   const handleCreateReport = async () => {
     if (!reportName.trim()) {
@@ -42,7 +46,7 @@ export default function ReportsPage() {
     
     try {
       // Simulate report generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       const newReport: Report = {
         id: `report_${Date.now()}`,
@@ -64,20 +68,29 @@ export default function ReportsPage() {
         updatedAt: new Date(),
       };
 
-      setReports([...reports, newReport]);
+      // Show preview instead of immediately adding to reports
+      setPreviewReport(newReport);
+      setShowPreview(true);
       
-      // Reset form
-      setReportName('');
-      setReportDescription('');
-      setSelectedDatasets([]);
-      setSelectedCharts([]);
-      setShowCreateForm(false);
     } catch (error) {
       console.error('Error generating report:', error);
       alert('Error generating report. Please try again.');
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleConfirmReport = (report: Report) => {
+    setReports([...reports, report]);
+    setShowPreview(false);
+    setPreviewReport(null);
+    
+    // Reset form
+    setReportName('');
+    setReportDescription('');
+    setSelectedDatasets([]);
+    setSelectedCharts([]);
+    setShowCreateForm(false);
   };
 
   const handleDownloadReport = (report: Report) => {
@@ -87,6 +100,27 @@ export default function ReportsPage() {
 
   const handleDeleteReport = (reportId: string) => {
     setReports(reports.filter(r => r.id !== reportId));
+  };
+
+  const handlePreviewReport = (report: Report) => {
+    setPreviewReport(report);
+    setShowPreview(true);
+  };
+
+  const handleDownloadFromPreview = (format: 'pdf' | 'excel') => {
+    if (previewReport) {
+      // Update the report format if different
+      const updatedReport = { ...previewReport, format };
+      
+      // If this is a new report (not in the list yet), add it
+      if (!reports.find(r => r.id === previewReport.id)) {
+        handleConfirmReport(updatedReport);
+      }
+      
+      // Download the report
+      alert(`Downloading ${previewReport.name}.${format}...`);
+      setShowPreview(false);
+    }
   };
 
   return (
@@ -312,7 +346,7 @@ export default function ReportsPage() {
                     className="flex-1 py-3 px-6 rounded-xl text-white font-medium transition-all duration-200 hover:transform hover:-translate-y-1 disabled:opacity-50"
                     style={{ background: 'linear-gradient(135deg, #10B981, #34D399)' }}
                   >
-                    {isGenerating ? 'Generating...' : 'Generate Report'}
+                    {isGenerating ? 'Generating Preview...' : 'Preview Report'}
                   </button>
                   
                   <button
@@ -390,18 +424,24 @@ export default function ReportsPage() {
                             </div>
                             
                             <div className="flex gap-2">
-                              <button className="text-gray-400 hover:text-blue-600 transition-colors">
+                              <button 
+                                onClick={() => handlePreviewReport(report)}
+                                className="text-gray-400 hover:text-blue-600 transition-colors"
+                                title="Preview Report"
+                              >
                                 <EyeIcon className="h-5 w-5" />
                               </button>
                               <button
                                 onClick={() => handleDownloadReport(report)}
                                 className="text-gray-400 hover:text-green-600 transition-colors"
+                                title="Download Report"
                               >
                                 <ArrowDownTrayIcon className="h-5 w-5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteReport(report.id)}
                                 className="text-gray-400 hover:text-red-600 transition-colors"
+                                title="Delete Report"
                               >
                                 <TrashIcon className="h-5 w-5" />
                               </button>
@@ -415,6 +455,20 @@ export default function ReportsPage() {
               )}
             </motion.div>
           </>
+        )}
+
+        {/* Report Preview Modal */}
+        {showPreview && previewReport && (
+          <ReportPreview
+            report={previewReport}
+            datasets={datasets}
+            charts={charts}
+            onClose={() => {
+              setShowPreview(false);
+              setPreviewReport(null);
+            }}
+            onDownload={handleDownloadFromPreview}
+          />
         )}
       </div>
     </DashboardLayout>
