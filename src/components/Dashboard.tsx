@@ -129,20 +129,20 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2" style={{ color: '#2E2C6E' }}>
+              <h1 className="text-2xl font-bold mb-1" style={{ color: '#2E2C6E' }}>
                 Business Intelligence Dashboard
               </h1>
-              <p className="text-gray-600 text-lg">
+              <p className="text-gray-600 text-sm">
                 Real-time insights and analytics • {currentTime.toLocaleTimeString()}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Last Updated</div>
-              <div className="font-semibold" style={{ color: '#2E2C6E' }}>
+              <div className="text-xs text-gray-500">Last Updated</div>
+              <div className="font-semibold text-sm" style={{ color: '#2E2C6E' }}>
                 {currentTime.toLocaleDateString()}
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
         >
           {stats.map((stat) => {
             const Icon = stat.icon;
@@ -163,37 +163,37 @@ export default function Dashboard() {
               <a
                 key={stat.label}
                 href={stat.href}
-                className="bg-white p-6 rounded-2xl transition-all duration-200 hover:transform hover:-translate-y-1 group"
+                className="bg-white p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1 group"
                 style={{
-                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
                   textDecoration: 'none',
                 }}
               >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
                     style={{
                       background: `linear-gradient(135deg, ${stat.color}, ${stat.color}aa)`,
                     }}
                   >
-                    <Icon className="h-6 w-6 text-white" />
+                    <Icon className="h-4 w-4 text-white" />
                   </div>
                   <div className="text-right">
-                    <div className="flex items-center text-sm text-green-600">
-                      <TrendIcon className="h-4 w-4 mr-1" />
+                    <div className="flex items-center text-xs text-green-600">
+                      <TrendIcon className="h-3 w-3 mr-1" />
                       {stat.change}
                     </div>
                   </div>
                 </div>
-                <div className="mb-2">
+                <div className="mb-1">
                   <span
-                    className="text-2xl font-bold"
+                    className="text-xl font-bold"
                     style={{ color: stat.color }}
                   >
                     {stat.value}
                   </span>
                 </div>
-                <h3 className="font-semibold text-sm" style={{ color: '#2E2C6E' }}>
+                <h3 className="font-medium text-xs" style={{ color: '#2E2C6E' }}>
                   {stat.label}
                 </h3>
               </a>

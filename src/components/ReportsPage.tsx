@@ -92,8 +92,21 @@ export default function ReportsPage() {
   };
 
   const handleDownloadReport = (report: Report) => {
-    // In a real app, this would download the actual file
-    alert(`Downloading ${report.name}.${report.format}...`);
+    // Show better download prompt
+    const confirmed = confirm(`Ready to download "${report.name}"?\n\nFormat: ${report.format.toUpperCase()}\nIncludes: ${report.config.includeCharts ? 'Charts, ' : ''}${report.config.includeRawData ? 'Data Tables' : ''}\n\nClick OK to download now.`);
+    
+    if (confirmed) {
+      // Simulate file download
+      const link = document.createElement('a');
+      link.href = '#';
+      link.download = `${report.name}.${report.format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success message
+      alert(`✅ "${report.name}.${report.format}" download started!`);
+    }
   };
 
   const handleDeleteReport = (reportId: string) => {

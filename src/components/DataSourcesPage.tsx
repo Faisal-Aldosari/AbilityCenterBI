@@ -7,6 +7,7 @@ import {
   CheckCircleIcon,
   XMarkIcon,
   PlusIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
 import { useDataSources } from '../hooks/useDataSources';
@@ -355,10 +356,15 @@ export default function DataSourcesPage() {
                       </div>
                       
                       <button
-                        onClick={() => removeDataset(dataset.id)}
-                        className="text-red-400 hover:text-red-600 transition-colors"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this data source?')) {
+                            removeDataset(dataset.id);
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
+                        title="Delete data source"
                       >
-                        <XMarkIcon className="h-5 w-5" />
+                        <TrashIcon className="h-4 w-4" />
                       </button>
                     </div>
                   </div>

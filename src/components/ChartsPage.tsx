@@ -500,10 +500,15 @@ export default function ChartsPage() {
                               <EyeIcon className="h-5 w-5" />
                             </button>
                             <button
-                              onClick={() => removeChart(chart.id)}
-                              className="text-gray-400 hover:text-red-600 transition-colors"
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete "${chart.name}"?`)) {
+                                  removeChart(chart.id);
+                                }
+                              }}
+                              className="text-gray-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50"
+                              title="Delete chart"
                             >
-                              <TrashIcon className="h-5 w-5" />
+                              <TrashIcon className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
