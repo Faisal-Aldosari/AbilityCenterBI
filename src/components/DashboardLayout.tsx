@@ -9,6 +9,8 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  ChatBubbleLeftRightIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 import Footer from './Footer';
@@ -17,9 +19,10 @@ import toast from 'react-hot-toast';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   currentPage?: string;
+  onShowAIChat?: () => void;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage = 'dashboard' }) => {
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage = 'dashboard', onShowAIChat }) => {
   const { user, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -158,6 +161,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Floating AI Chat Button */}
+      {onShowAIChat && (
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onShowAIChat}
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-50 hover:shadow-xl transition-all duration-200"
+          style={{
+            background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+          }}
+          title="AI Assistant"
+        >
+          <SparklesIcon className="w-6 h-6 text-white" />
+        </motion.button>
+      )}
     </div>
   );
 };

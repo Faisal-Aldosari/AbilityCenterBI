@@ -10,6 +10,7 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import { useDataSources } from '../hooks/useDataSources';
 import { fetchGoogleSheetData } from '../services/googleSheets';
 import type { Dataset } from '../types';
@@ -20,6 +21,7 @@ export default function DataSourcesPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [sheetsUrl, setSheetsUrl] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -119,7 +121,7 @@ export default function DataSourcesPage() {
 
   if (loading) {
     return (
-      <DashboardLayout currentPage="data-sources">
+      <DashboardLayout currentPage="data-sources" onShowAIChat={() => setShowAIPanel(true)}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
         </div>
@@ -128,7 +130,7 @@ export default function DataSourcesPage() {
   }
 
   return (
-    <DashboardLayout currentPage="data-sources">
+    <DashboardLayout currentPage="data-sources" onShowAIChat={() => setShowAIPanel(true)}>
       <div className="py-8 px-8 min-h-full">
         {/* Header */}
         <motion.div
@@ -390,6 +392,21 @@ export default function DataSourcesPage() {
           )}
         </motion.div>
       </div>
+
+      {/* AI Assistant Panel */}
+      <GeminiChatPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        datasets={datasets}
+        onSuggestChart={(config: any) => {
+          console.log('Chart suggestion:', config);
+          window.location.href = '/charts';
+        }}
+        onGenerateReport={(config: any) => {
+          console.log('Report generation:', config);
+          window.location.href = '/reports';
+        }}
+      />
     </DashboardLayout>
   );
 }

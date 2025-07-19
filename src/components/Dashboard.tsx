@@ -123,7 +123,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <DashboardLayout currentPage="dashboard">
+    <DashboardLayout currentPage="dashboard" onShowAIChat={() => setShowAIPanel(true)}>
       <div className="py-8 px-8 min-h-full">
         {/* Welcome Section with Real-time Info */}
         <motion.div

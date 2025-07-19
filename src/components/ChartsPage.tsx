@@ -12,6 +12,7 @@ import {
   CircleStackIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import { useDataSources } from '../hooks/useDataSources';
 import { useCharts } from '../hooks/useCharts';
 import type { Chart, ChartType } from '../types';
@@ -95,6 +96,7 @@ export default function ChartsPage() {
   const [aggregationType, setAggregationType] = useState('sum');
   const [chartColors, setChartColors] = useState(['#F8941F', '#2E2C6E', '#10B981', '#8B5CF6']);
   const [filterValues, setFilterValues] = useState<{[key: string]: string}>({});
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const handleCreateChart = () => {
     if (!chartName.trim() || !selectedDataset || !xAxisColumn || !yAxisColumn) {
@@ -146,7 +148,7 @@ export default function ChartsPage() {
 
   if (loading) {
     return (
-      <DashboardLayout currentPage="charts">
+      <DashboardLayout currentPage="charts" onShowAIChat={() => setShowAIPanel(true)}>
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
         </div>
@@ -155,7 +157,7 @@ export default function ChartsPage() {
   }
 
   return (
-    <DashboardLayout currentPage="charts">
+    <DashboardLayout currentPage="charts" onShowAIChat={() => setShowAIPanel(true)}>
       <div className="py-8 px-8 min-h-full">
         {/* Header */}
         <motion.div
@@ -549,6 +551,24 @@ export default function ChartsPage() {
           </>
         )}
       </div>
+
+      {/* AI Assistant Panel */}
+      <GeminiChatPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        datasets={datasets}
+        onSuggestChart={(config: any) => {
+          console.log('Chart suggestion:', config);
+          // Auto-fill the form with AI suggestions
+          if (config.chartType) setSelectedChartType(config.chartType);
+          if (config.name) setChartName(config.name);
+          setShowCreateForm(true);
+        }}
+        onGenerateReport={(config: any) => {
+          console.log('Report generation:', config);
+          window.location.href = '/reports';
+        }}
+      />
     </DashboardLayout>
   );
 }

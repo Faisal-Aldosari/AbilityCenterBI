@@ -10,6 +10,7 @@ import {
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
+import GeminiChatPanel from './GeminiChatPanel';
 import ReportPreview from './ReportPreview';
 import { useDataSources } from '../hooks/useDataSources';
 import { useCharts } from '../hooks/useCharts';
@@ -33,6 +34,7 @@ export default function ReportsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [previewReport, setPreviewReport] = useState<Report | null>(null);
+  const [showAIPanel, setShowAIPanel] = useState(false);
 
   const handleCreateReport = async () => {
     if (!reportName.trim()) {
@@ -135,7 +137,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <DashboardLayout currentPage="reports">
+    <DashboardLayout currentPage="reports" onShowAIChat={() => setShowAIPanel(true)}>
       <div className="py-8 px-8 min-h-full">
         {/* Header */}
         <motion.div
@@ -482,6 +484,24 @@ export default function ReportsPage() {
           />
         )}
       </div>
+
+      {/* AI Assistant Panel */}
+      <GeminiChatPanel
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        datasets={datasets}
+        onSuggestChart={(config: any) => {
+          console.log('Chart suggestion:', config);
+          window.location.href = '/charts';
+        }}
+        onGenerateReport={(config: any) => {
+          console.log('Report generation:', config);
+          // Auto-fill report form with AI suggestions
+          if (config.name) setReportName(config.name);
+          if (config.description) setReportDescription(config.description);
+          setShowCreateForm(true);
+        }}
+      />
     </DashboardLayout>
   );
 }
