@@ -40,7 +40,7 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout currentPage="dashboard">
-      <div className="py-8 px-8">
+      <div className="py-8 px-8 min-h-full">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
