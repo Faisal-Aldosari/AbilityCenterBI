@@ -116,6 +116,24 @@
 - **Lint Warnings**: Some `any` types used (functional but could be improved)
 - **Test Coverage**: Unit tests not implemented (development working fine)
 
+## 🚀 DEPLOYMENT INFORMATION
+
+### ✅ **Repository (Origin)**
+- **GitHub URL**: https://github.com/Faisal-Aldosari/AbilityCenterBI.git
+- **Branch**: `main`
+- **Latest Commit**: Deployed with all production features
+
+### ✅ **Live Application (Production)**
+- **Vercel Production URL**: https://ability-center-gk5ajokv3-faisal-aldosaris-projects.vercel.app
+- **Deployment Status**: ✅ Successfully deployed
+- **Build Status**: ✅ Passing
+- **All Features**: ✅ Live and functional
+
+### 🔗 **OAuth Redirect URLs**
+For Google OAuth configuration, use these redirect URIs:
+- **Production**: `https://ability-center-gk5ajokv3-faisal-aldosaris-projects.vercel.app/auth/callback`
+- **Development**: `http://localhost:5173/auth/callback`
+
 ## 🎯 PRODUCTION DEPLOYMENT READY
 
 The application is **production-ready** with all requested features implemented and functional:
