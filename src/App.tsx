@@ -6,7 +6,7 @@ import { NotificationProvider } from './components/NotificationSystem';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFoundPage } from './components/NotFoundPage';
 import LoginPage from './components/LoginPage';
-import DashboardPageClean from './components/DashboardPageClean';
+import Dashboard from './components/Dashboard';
 import DataSourcesPage from './components/DataSourcesPage';
 import ChartsPage from './components/ChartsPage';
 import ReportsPage from './components/ReportsPage';
@@ -64,7 +64,7 @@ function App() {
                     path="/"
                     element={
                       <ProtectedRoute>
-                        <DashboardPageClean />
+                        <Dashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -72,7 +72,7 @@ function App() {
                     path="/dashboard"
                     element={
                       <ProtectedRoute>
-                        <DashboardPageClean />
+                        <Dashboard />
                       </ProtectedRoute>
                     }
                   />
@@ -80,7 +80,7 @@ function App() {
                     path="/dashboard"
                     element={
                       <ProtectedRoute>
-                        <DashboardPageClean />
+                        <Dashboard />
                       </ProtectedRoute>
                     }
                   />
