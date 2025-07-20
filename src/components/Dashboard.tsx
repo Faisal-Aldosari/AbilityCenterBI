@@ -69,7 +69,7 @@ export default function Dashboard() {
       icon: TableCellsIcon,
       color: '#F8941F',
       href: '/data-sources',
-      change: '+12%',
+      change: datasets.length > 0 ? '+' + datasets.length : '0',
       trend: 'up'
     },
     {
@@ -78,16 +78,16 @@ export default function Dashboard() {
       icon: ChartBarIcon,
       color: '#2E2C6E',
       href: '/charts',
-      change: '+8%',
+      change: charts.length > 0 ? '+' + charts.length : '0',
       trend: 'up'
     },
     {
-      label: 'Reports Generated',
-      value: '3',
+      label: 'Reports Available',
+      value: '0',
       icon: DocumentArrowDownIcon,
       color: '#10B981',
       href: '/reports',
-      change: '+25%',
+      change: '0',
       trend: 'up'
     },
     {
@@ -96,29 +96,42 @@ export default function Dashboard() {
       icon: ArrowTrendingUpIcon,
       color: '#8B5CF6',
       href: '/data-sources',
-      change: '+15%',
+      change: datasets.length > 0 ? '+' + datasets.reduce((total, dataset) => total + dataset.rows.length, 0) : '0',
       trend: 'up'
     },
   ];
 
-  const insights = [
+  const insights = datasets.length > 0 ? [
     {
-      title: 'Revenue Trending Up',
-      description: 'Monthly revenue increased by 15% compared to last period',
-      type: 'positive',
-      action: 'View Details'
-    },
-    {
-      title: 'New Data Available',
-      description: `${datasets.length} data sources ready for analysis`,
+      title: 'Data Sources Connected',
+      description: `You have ${datasets.length} active data source${datasets.length !== 1 ? 's' : ''} ready for analysis`,
       type: 'info',
-      action: 'Analyze Now'
+      action: 'View Data'
+    },
+    ...(charts.length > 0 ? [{
+      title: 'Charts Created',
+      description: `${charts.length} chart${charts.length !== 1 ? 's' : ''} available for reporting`,
+      type: 'positive',
+      action: 'View Charts'
+    }] : []),
+    {
+      title: 'AI Assistant Ready',
+      description: 'Get insights and recommendations for your data',
+      type: 'info',
+      action: 'Open AI Chat'
+    }
+  ] : [
+    {
+      title: 'Get Started',
+      description: 'Connect your first data source to begin analyzing your business data',
+      type: 'warning',
+      action: 'Connect Data'
     },
     {
-      title: 'Report Due Soon',
-      description: 'Quarterly business review report scheduled for tomorrow',
-      type: 'warning',
-      action: 'Generate Report'
+      title: 'AI Assistant Available',
+      description: 'Your AI assistant is ready to help with data analysis and insights',
+      type: 'info',
+      action: 'Open AI Chat'
     }
   ];
 

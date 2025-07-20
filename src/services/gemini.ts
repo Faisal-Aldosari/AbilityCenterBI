@@ -1,16 +1,12 @@
 import type { Dataset, AIChatMessage, AIAnalysis, Dashboard } from '../types';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 export class GeminiService {
   private conversationHistory: AIChatMessage[] = [];
 
   async analyzeData(dataset: Dataset, question: string): Promise<string> {
-    if (!GEMINI_API_KEY) {
-      throw new Error('Gemini API key not configured');
-    }
-
     const prompt = this.buildDataAnalysisPrompt(dataset, question);
     
     try {
@@ -19,22 +15,6 @@ export class GeminiService {
     } catch (error) {
       console.error('Error analyzing data with Gemini:', error);
       throw new Error('Failed to analyze data');
-    }
-  }
-
-  async generateResponse(message: string, datasets: Dataset[]): Promise<string> {
-    if (!GEMINI_API_KEY) {
-      return this.generateFallbackResponse(message, datasets);
-    }
-
-    const prompt = this.buildChatPrompt(message, datasets);
-    
-    try {
-      const response = await this.callGeminiAPI(prompt);
-      return response;
-    } catch (error) {
-      console.error('Error generating response with Gemini:', error);
-      return this.generateFallbackResponse(message, datasets);
     }
   }
 
@@ -86,27 +66,100 @@ export class GeminiService {
 
   async chatWithData(
     message: string, 
-    datasets: Dataset[], 
-    context?: { charts?: any[]; dashboard?: Dashboard }
+    datasets: Dataset[]
   ): Promise<AIChatMessage> {
-    const prompt = this.buildChatPrompt(message, datasets, context);
+    // For now, provide intelligent responses without actual API calls
+    // This makes the chat immediately interactive while keeping costs low
     
-    try {
-      const response = await this.callGeminiAPI(prompt);
-      
-      const aiMessage: AIChatMessage = {
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: response,
-        timestamp: new Date(),
-      };
-      
-      this.conversationHistory.push(aiMessage);
-      return aiMessage;
-    } catch (error) {
-      console.error('Error in chat:', error);
-      throw new Error('Failed to process chat message');
+    const lowerMessage = message.toLowerCase();
+    let responseContent = '';
+    
+    if (lowerMessage.includes('chart') || lowerMessage.includes('visualization')) {
+      if (datasets.length === 0) {
+        responseContent = "I'd love to help you create charts! However, I don't see any data sources connected yet. Please connect a data source first by going to the Data Sources page.";
+      } else {
+        const dataset = datasets[0];
+        const columns = Object.keys(dataset.rows[0] || {});
+        const numericColumns = columns.filter(col => 
+          dataset.rows.every(row => !isNaN(Number(row[col])))
+        );
+        
+        responseContent = `Based on your data "${dataset.name}", I suggest these chart options:
+        
+• **Bar Chart**: Great for comparing ${numericColumns.join(', ')} across different categories
+• **Line Chart**: Perfect for showing trends over time if you have date columns
+• **Pie Chart**: Ideal for showing proportions and percentages
+• **Scatter Plot**: Excellent for finding correlations between numeric variables
+
+Your data has ${dataset.rows.length} rows with columns: ${columns.join(', ')}. 
+
+Would you like me to help you create a specific chart type?`;
+      }
+    } else if (lowerMessage.includes('report') || lowerMessage.includes('summary')) {
+      if (datasets.length === 0) {
+        responseContent = "I can help generate comprehensive reports! First, please connect your data sources, then I can create detailed analysis reports with insights and recommendations.";
+      } else {
+        const totalRows = datasets.reduce((sum, ds) => sum + ds.rows.length, 0);
+        responseContent = `I can generate several types of reports for your ${datasets.length} data source(s) containing ${totalRows} total records:
+
+• **Executive Summary**: High-level overview with key metrics
+• **Detailed Analysis**: In-depth breakdown of trends and patterns  
+• **Performance Report**: KPI tracking and goal comparisons
+• **Financial Report**: Revenue, costs, and profitability analysis
+
+Would you like me to create a specific type of report?`;
+      }
+    } else if (lowerMessage.includes('insight') || lowerMessage.includes('analyze')) {
+      if (datasets.length === 0) {
+        responseContent = "I'm ready to analyze your data and provide insights! Please connect a data source first, and I'll help you discover patterns, trends, and opportunities in your data.";
+      } else {
+        responseContent = `I can provide several types of analysis for your data:
+
+• **Trend Analysis**: Identify patterns over time
+• **Statistical Summary**: Key metrics and distributions  
+• **Outlier Detection**: Find unusual data points
+• **Correlation Analysis**: Discover relationships between variables
+• **Performance Metrics**: Calculate KPIs and benchmarks
+
+What specific aspect would you like me to analyze?`;
+      }
+    } else if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+      responseContent = `I'm your AI Business Intelligence assistant! Here's what I can help you with:
+
+🔍 **Data Analysis**: Ask questions about your data and get instant insights
+📊 **Chart Recommendations**: Get suggestions for the best visualizations
+📈 **Report Generation**: Create comprehensive business reports
+💡 **Data Insights**: Discover patterns and trends automatically
+🎯 **KPI Tracking**: Monitor key performance indicators
+📋 **Data Summaries**: Quick overviews of your datasets
+
+Just ask me anything about your data in plain English! For example:
+- "What charts work best for my sales data?"
+- "Generate a monthly performance report"
+- "Show me trends in my revenue data"`;
+    } else {
+      // Default response for general questions
+      responseContent = `I understand you're asking about "${message}". I'm here to help with your business intelligence needs! 
+
+I can assist with data analysis, chart creation, report generation, and finding insights in your data. 
+
+${datasets.length > 0 
+        ? `I can see you have ${datasets.length} data source(s) connected. Feel free to ask me about trends, patterns, or what visualizations might work best for your data.`
+        : 'To get started, try connecting a data source, then ask me to analyze it or suggest charts!'
+      }
+
+What would you like to explore?`;
     }
+    
+    const aiMessage: AIChatMessage = {
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: responseContent,
+      timestamp: new Date(),
+    };
+    
+    this.conversationHistory.push(aiMessage);
+    return aiMessage;
   }
 
   private async callGeminiAPI(prompt: string): Promise<string> {
@@ -235,107 +288,6 @@ Include:
 
 Format as a professional financial report with clear sections and actionable insights.
 `;
-  }
-
-  private buildChatPrompt(
-    message: string, 
-    datasets: Dataset[], 
-    context?: { charts?: any[]; dashboard?: Dashboard }
-  ): string {
-    const datasetInfo = datasets.map(d => 
-      `${d.name}: ${d.columns.map(c => c.name).join(', ')} (${d.rows.length} rows)`
-    ).join('\n');
-
-    const conversationContext = this.conversationHistory
-      .slice(-5) // Last 5 messages for context
-      .map(msg => `${msg.role}: ${msg.content}`)
-      .join('\n');
-
-    return `
-You are an AI financial analyst assistant. Help the user analyze their data and create reports.
-
-Available Datasets:
-${datasetInfo}
-
-${context?.dashboard ? `Current Dashboard: ${context.dashboard.name}` : ''}
-${context?.charts ? `Active Charts: ${context.charts.length}` : ''}
-
-Recent Conversation:
-${conversationContext}
-
-User Message: ${message}
-
-Provide helpful, accurate responses about data analysis, chart creation, financial insights, and reporting. If the user asks to create charts or reports, provide specific recommendations with technical details.
-`;
-  }
-
-  private generateFallbackResponse(message: string, datasets: Dataset[]): string {
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('chart') || lowerMessage.includes('visualization')) {
-      return `I can help you create charts from your data! You have ${datasets.length} dataset(s) available. Here are some chart suggestions:
-
-• Bar charts for comparing categories
-• Line charts for trends over time
-• Pie charts for showing proportions
-• Scatter plots for correlations
-
-Would you like me to suggest a specific chart type based on your data?`;
-    }
-    
-    if (lowerMessage.includes('report') || lowerMessage.includes('export')) {
-      return `I can help you generate reports! Here's what I can do:
-
-• Create comprehensive PDF reports with your charts and insights
-• Export data to Excel or CSV formats
-• Generate summary statistics and key findings
-• Include data visualizations in your reports
-
-What type of report would you like to create?`;
-    }
-    
-    if (lowerMessage.includes('data') || lowerMessage.includes('connect')) {
-      return `I can help you work with your data! Currently you have ${datasets.length} dataset(s) connected. Here's what you can do:
-
-• Upload CSV files for analysis
-• Connect Google Sheets directly
-• Filter and transform your data
-• Combine multiple data sources
-
-Do you need help connecting a new data source?`;
-    }
-    
-    if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
-      return `I'm your AI assistant for data analysis! I can help you with:
-
-📊 **Charts & Visualizations**
-- Suggest the best chart types for your data
-- Help create interactive dashboards
-
-📋 **Reports & Exports**
-- Generate comprehensive PDF reports
-- Export data in multiple formats
-
-🔗 **Data Management**
-- Connect new data sources
-- Transform and filter data
-
-💡 **Insights & Analysis**
-- Analyze trends and patterns
-- Provide data-driven recommendations
-
-What would you like to explore today?`;
-    }
-    
-    return `I'm here to help you analyze your data and create insights! You currently have ${datasets.length} dataset(s) connected. 
-
-I can assist with:
-• Creating charts and visualizations
-• Generating reports and exports
-• Analyzing your data for trends
-• Connecting new data sources
-
-What would you like to work on?`;
   }
 
   private calculateBasicStats(dataset: Dataset): any {
