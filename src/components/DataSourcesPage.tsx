@@ -138,12 +138,27 @@ export default function DataSourcesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#2E2C6E' }}>
-            Data Sources
-          </h1>
-          <p className="text-gray-600">
-            Connect your data from CSV files or Google Sheets to start creating insights
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold mb-2" style={{ color: '#2E2C6E' }}>
+                Data Sources
+              </h1>
+              <p className="text-gray-600">
+                Connect your data from CSV files or Google Sheets to start creating insights
+              </p>
+            </div>
+            
+            {/* AI Chat Button */}
+            <button
+              onClick={() => setShowAIPanel(true)}
+              className="px-4 py-2 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              style={{
+                background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+              }}
+            >
+              🤖 AI CHAT
+            </button>
+          </div>
         </motion.div>
 
         {/* Upload Options */}
@@ -156,15 +171,16 @@ export default function DataSourcesPage() {
           >
             <button
               onClick={() => setUploadMode('csv')}
-              className="p-8 rounded-2xl transition-all duration-200 hover:transform hover:-translate-y-1"
+              className="p-8 rounded-2xl transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-xl"
               style={{
                 background: 'rgba(248, 148, 31, 0.05)',
                 border: '2px solid rgba(248, 148, 31, 0.1)',
               }}
             >
+              <div className="text-4xl mb-2">📄</div>
               <CloudArrowUpIcon className="h-12 w-12 mx-auto mb-4" style={{ color: '#F8941F' }} />
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>
-                Upload CSV File
+                📊 Upload CSV File
               </h3>
               <p className="text-gray-600">
                 Upload a CSV file from your computer to import data
@@ -173,15 +189,16 @@ export default function DataSourcesPage() {
 
             <button
               onClick={() => setUploadMode('sheets')}
-              className="p-8 rounded-2xl transition-all duration-200 hover:transform hover:-translate-y-1"
+              className="p-8 rounded-2xl transition-all duration-200 hover:transform hover:-translate-y-1 hover:shadow-xl"
               style={{
                 background: 'rgba(16, 185, 129, 0.05)',
                 border: '2px solid rgba(16, 185, 129, 0.1)',
               }}
             >
+              <div className="text-4xl mb-2">🔗</div>
               <TableCellsIcon className="h-12 w-12 mx-auto mb-4" style={{ color: '#10B981' }} />
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#2E2C6E' }}>
-                Connect Google Sheets
+                📋 Connect Google Sheets
               </h3>
               <p className="text-gray-600">
                 Import data directly from your Google Sheets

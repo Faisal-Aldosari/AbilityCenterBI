@@ -140,11 +140,23 @@ export default function Dashboard() {
                 Real-time insights and analytics • {currentTime.toLocaleTimeString()}
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-xs text-gray-500">Last Updated</div>
-              <div className="font-semibold text-sm" style={{ color: '#2E2C6E' }}>
-                {currentTime.toLocaleDateString()}
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-xs text-gray-500">Last Updated</div>
+                <div className="font-semibold text-sm" style={{ color: '#2E2C6E' }}>
+                  {currentTime.toLocaleDateString()}
+                </div>
               </div>
+              {/* Prominent AI Chat Button */}
+              <button
+                onClick={() => setShowAIPanel(true)}
+                className="px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 animate-pulse"
+                style={{
+                  background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+                }}
+              >
+                🤖 AI CHAT
+              </button>
             </div>
           </div>
         </motion.div>

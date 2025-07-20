@@ -155,16 +155,29 @@ export default function ReportsPage() {
               </p>
             </div>
             
-            {(datasets.length > 0 || charts.length > 0) && (
+            <div className="flex items-center gap-4">
+              {/* AI Chat Button */}
               <button
-                onClick={() => setShowCreateForm(true)}
-                className="flex items-center px-6 py-3 rounded-xl text-white font-medium transition-all duration-200 hover:transform hover:-translate-y-1"
-                style={{ background: 'linear-gradient(135deg, #10B981, #34D399)' }}
+                onClick={() => setShowAIPanel(true)}
+                className="px-4 py-2 rounded-lg text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+                }}
               >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Generate Report
+                🤖 AI CHAT
               </button>
-            )}
+
+              {(datasets.length > 0 || charts.length > 0) && (
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className="flex items-center px-8 py-4 rounded-xl text-white font-bold transition-all duration-200 hover:transform hover:-translate-y-1 shadow-lg hover:shadow-xl animate-pulse text-lg"
+                  style={{ background: 'linear-gradient(135deg, #10B981, #34D399)' }}
+                >
+                  <PlusIcon className="h-6 w-6 mr-3" />
+                  📄 CREATE REPORT
+                </button>
+              )}
+            </div>
           </div>
         </motion.div>
 
