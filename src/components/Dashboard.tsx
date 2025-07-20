@@ -7,8 +7,6 @@ import {
   SparklesIcon,
   ArrowTrendingUpIcon,
   ClockIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
 } from '@heroicons/react/24/outline';
 import DashboardLayout from './DashboardLayout';
 import GeminiChatPanel from './GeminiChatPanel';
@@ -137,90 +135,76 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout currentPage="dashboard" onShowAIChat={() => setShowAIPanel(true)}>
-      <div className="py-8 px-8 min-h-full">
+      <div className="py-6 min-h-full">
         {/* Welcome Section with Real-time Info */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-8"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold mb-1" style={{ color: '#2E2C6E' }}>
+              <h1 className="text-3xl font-bold text-gray-900">
                 Business Intelligence Dashboard
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm mt-1">
                 Real-time insights and analytics • {currentTime.toLocaleTimeString()}
               </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <div className="text-xs text-gray-500">Last Updated</div>
-                <div className="font-semibold text-sm" style={{ color: '#2E2C6E' }}>
+                <div className="font-semibold text-sm text-gray-900">
                   {currentTime.toLocaleDateString()}
                 </div>
               </div>
-              {/* Prominent AI Chat Button */}
+              {/* Clean AI Chat Button */}
               <button
                 onClick={() => setShowAIPanel(true)}
-                className="px-6 py-3 rounded-xl text-white font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 animate-pulse"
-                style={{
-                  background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
-                }}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                🤖 AI CHAT
+                <SparklesIcon className="w-5 h-5" />
+                <span className="font-medium">AI Assistant</span>
               </button>
             </div>
           </div>
         </motion.div>
 
-        {/* Enhanced Stats Overview */}
+        {/* Clean Stats Overview - Power BI Style */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
         >
           {stats.map((stat) => {
             const Icon = stat.icon;
-            const TrendIcon = stat.trend === 'up' ? ArrowUpIcon : ArrowDownIcon;
             return (
               <a
                 key={stat.label}
                 href={stat.href}
-                className="bg-white p-4 rounded-xl transition-all duration-200 hover:transform hover:-translate-y-1 group"
-                style={{
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-                  textDecoration: 'none',
-                }}
+                className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 hover:border-blue-300 group no-underline"
+                style={{ textDecoration: 'none' }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
-                    style={{
-                      background: `linear-gradient(135deg, ${stat.color}, ${stat.color}aa)`,
-                    }}
-                  >
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center text-xs text-green-600">
-                      <TrendIcon className="h-3 w-3 mr-1" />
-                      {stat.change}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-12 h-12 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: `${stat.color}15` }}
+                    >
+                      <Icon className="h-6 w-6" style={{ color: stat.color }} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <span className="text-sm text-green-600 font-medium">
+                      {stat.change}
+                    </span>
+                  </div>
                 </div>
-                <div className="mb-1">
-                  <span
-                    className="text-xl font-bold"
-                    style={{ color: stat.color }}
-                  >
-                    {stat.value}
-                  </span>
-                </div>
-                <h3 className="font-medium text-xs" style={{ color: '#2E2C6E' }}>
-                  {stat.label}
-                </h3>
               </a>
             );
           })}
@@ -252,7 +236,14 @@ export default function Dashboard() {
                 </span>
               </div>
               <p className="text-gray-600 text-sm mb-4">{insight.description}</p>
-              <button className="text-sm font-medium hover:underline" style={{ color: '#F8941F' }}>
+              <button 
+                onClick={() => {
+                  if (insight.action === 'Open AI Chat') {
+                    setShowAIPanel(true);
+                  }
+                }}
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+              >
                 {insight.action} →
               </button>
             </div>
