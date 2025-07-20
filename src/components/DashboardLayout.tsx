@@ -54,7 +54,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
             </div>
 
             {/* Main Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="flex items-center space-x-8">
               {navigation.map((item) => (
                 <a
                   key={item.name}
@@ -66,7 +66,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
-                  <span>{item.name}</span>
+                  <span className="hidden sm:block">{item.name}</span>
                 </a>
               ))}
             </nav>
@@ -78,7 +78,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
                 src={user?.picture}
                 alt={user?.name}
               />
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <div className="text-sm font-medium text-gray-700">{user?.name}</div>
                 <div className="text-xs text-gray-500">{user?.email}</div>
               </div>
