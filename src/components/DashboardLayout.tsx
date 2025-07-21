@@ -41,33 +41,40 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top Navigation Bar - Power BI Style */}
-      <div className="sticky top-0 z-20 bg-white shadow-sm border-b border-gray-200">
+      {/* Stunning Top Navigation Bar */}
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Brand */}
             <div className="flex items-center space-x-3 flex-shrink-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <ChartBarIcon className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold text-xl text-gray-900 hidden sm:block">AbilityCenterBI</span>
+              <motion.div 
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className="w-10 h-10 bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
+              >
+                <ChartBarIcon className="w-6 h-6 text-white" />
+              </motion.div>
+              <span className="font-bold text-xl bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent hidden sm:block">
+                Ability Center BI
+              </span>
             </div>
 
             {/* Main Navigation */}
-            <nav className="flex items-center space-x-4 lg:space-x-8 flex-1 justify-center">
+            <nav className="flex items-center space-x-2 lg:space-x-4 flex-1 justify-center">
               {navigation.map((item) => (
-                <a
+                <motion.a
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     currentPage === item.id
-                      ? 'bg-orange-100 text-orange-700 border-b-2 border-orange-500'
+                      ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
                   <span className="hidden sm:block">{item.name}</span>
-                </a>
+                </motion.a>
               ))}
             </nav>
 
@@ -95,22 +102,23 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, currentPage
       </div>
 
       {/* Main content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <Footer />
-
-      {/* Floating AI Chat Button */}
+      {/* Stunning Floating AI Chat Button */}
       {onShowAIChat && (
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
           onClick={onShowAIChat}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-50 hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+          className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center z-50 bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:shadow-violet-500/25 transition-all duration-300"
+          title="AI Assistant"
+        >
+          <SparklesIcon className="w-7 h-7" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse border-2 border-white"></div>
+        </motion.button>
+      )}
+    </div>
+  );      className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-50 hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-blue-600 to-purple-600 text-white"
           title="AI Assistant"
         >
           <SparklesIcon className="w-6 h-6" />

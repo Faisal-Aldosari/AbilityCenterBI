@@ -1,6 +1,6 @@
 import type { Dataset, AIChatMessage, AIAnalysis, Dashboard } from '../types';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 export class GeminiService {
@@ -68,9 +68,24 @@ export class GeminiService {
     message: string, 
     datasets: Dataset[]
   ): Promise<AIChatMessage> {
-    // For now, provide intelligent responses without actual API calls
-    // This makes the chat immediately interactive while keeping costs low
-    
+    // Try real Gemini API first, fallback to intelligent responses
+    try {
+      if (GEMINI_API_KEY) {
+        const response = await this.callGeminiAPI(this.buildChatPrompt(message, datasets));
+        const aiMessage: AIChatMessage = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: response,
+          timestamp: new Date(),
+        };
+        this.conversationHistory.push(aiMessage);
+        return aiMessage;
+      }
+    } catch (error) {
+      console.warn('Gemini API unavailable, using fallback responses');
+    }
+
+    // Fallback to intelligent pre-programmed responses
     const lowerMessage = message.toLowerCase();
     let responseContent = '';
     
@@ -81,17 +96,17 @@ export class GeminiService {
         const dataset = datasets[0];
         const columns = Object.keys(dataset.rows[0] || {});
         const numericColumns = columns.filter(col => 
-          dataset.rows.every(row => !isNaN(Number(row[col])))
+          dataset.rows.some(row => !isNaN(Number(row[col])))
         );
         
         responseContent = `Based on your data "${dataset.name}", I suggest these chart options:
         
-• **Bar Chart**: Great for comparing ${numericColumns.join(', ')} across different categories
+• **Bar Chart**: Great for comparing ${numericColumns.slice(0, 2).join(', ')} across different categories
 • **Line Chart**: Perfect for showing trends over time if you have date columns
 • **Pie Chart**: Ideal for showing proportions and percentages
 • **Scatter Plot**: Excellent for finding correlations between numeric variables
 
-Your data has ${dataset.rows.length} rows with columns: ${columns.join(', ')}. 
+Your data has ${dataset.rows.length} rows with columns: ${columns.slice(0, 5).join(', ')}${columns.length > 5 ? '...' : ''}. 
 
 Would you like me to help you create a specific chart type?`;
       }
@@ -339,6 +354,29 @@ Format as a professional financial report with clear sections and actionable ins
         config: {},
       };
     }
+  }
+
+  private buildChatPrompt(message: string, datasets: Dataset[]): string {
+    const datasetInfo = datasets.map(d => 
+      `${d.name}: ${d.columns.map(c => c.name).join(', ')} (${d.rows.length} rows)`
+    ).join('\n');
+
+    const conversationContext = this.conversationHistory
+      .slice(-5) // Last 5 messages for context
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    return `You are an AI business intelligence assistant for Ability Center BI. Help the user analyze their data and create reports.
+
+Available Datasets:
+${datasetInfo}
+
+Recent Conversation:
+${conversationContext}
+
+User Message: ${message}
+
+Provide helpful, accurate responses about data analysis, chart creation, business insights, and reporting. Keep responses concise and actionable.`;
   }
 
   getConversationHistory(): AIChatMessage[] {

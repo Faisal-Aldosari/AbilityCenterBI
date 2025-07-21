@@ -141,14 +141,13 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        >            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                Business Intelligence Dashboard
+                Ability Center BI
               </h1>
               <p className="text-gray-600 text-sm mt-1">
-                Real-time insights and analytics • {currentTime.toLocaleTimeString()}
+                Business Intelligence Dashboard • {currentTime.toLocaleTimeString()}
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -159,18 +158,22 @@ export default function Dashboard() {
                 </div>
               </div>
               {/* Clean AI Chat Button */}
-              <button
+              {/* Attractive AI Chat Button */}
+              <motion.button
                 onClick={() => setShowAIPanel(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
               >
                 <SparklesIcon className="w-5 h-5" />
-                <span className="font-medium">AI Assistant</span>
-              </button>
-            </div>
+                <span>AI Assistant</span>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              </motion.button>
           </div>
         </motion.div>
 
         {/* Clean Stats Overview - Power BI Style */}
+        {/* Beautiful Stats Overview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,37 +183,34 @@ export default function Dashboard() {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <a
+              <motion.a
                 key={stat.label}
                 href={stat.href}
-                className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 hover:border-blue-300 group no-underline"
+                whileHover={{ y: -4, scale: 1.02 }}
+                className="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group"
                 style={{ textDecoration: 'none' }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-12 h-12 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: `${stat.color}15` }}
-                    >
-                      <Icon className="h-6 w-6" style={{ color: stat.color }} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                  <div 
+                    className="w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+                    style={{ 
+                      background: `linear-gradient(135deg, ${stat.color}20, ${stat.color}10)`,
+                      border: `2px solid ${stat.color}30`
+                    }}
+                  >
+                    <Icon className="h-7 w-7" style={{ color: stat.color }} />
                   </div>
                   <div className="text-right">
-                    <span className="text-sm text-green-600 font-medium">
+                    <span className="text-sm text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded-full">
                       {stat.change}
                     </span>
                   </div>
                 </div>
-              </a>
-            );
-          })}
-        </motion.div>
-
-        {/* Insights Panel */}
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+        {/* Beautiful Insights Panel */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -218,33 +218,40 @@ export default function Dashboard() {
           className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
         >
           {insights.map((insight, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white p-6 rounded-2xl"
-              style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)' }}
+              whileHover={{ y: -2, scale: 1.02 }}
+              className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
             >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="font-semibold" style={{ color: '#2E2C6E' }}>
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="font-bold text-gray-900 text-lg">
                   {insight.title}
                 </h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  insight.type === 'positive' ? 'bg-green-100 text-green-800' :
-                  insight.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-blue-100 text-blue-800'
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  insight.type === 'positive' ? 'bg-emerald-100 text-emerald-700' :
+                  insight.type === 'warning' ? 'bg-amber-100 text-amber-700' :
+                  'bg-blue-100 text-blue-700'
                 }`}>
                   {insight.type}
                 </span>
               </div>
-              <p className="text-gray-600 text-sm mb-4">{insight.description}</p>
+              <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                {insight.description}
+              </p>
               <button 
                 onClick={() => {
                   if (insight.action === 'Open AI Chat') {
                     setShowAIPanel(true);
                   }
                 }}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                className="text-violet-600 hover:text-violet-800 font-semibold text-sm flex items-center space-x-1 hover:space-x-2 transition-all duration-200"
               >
-                {insight.action} →
+                <span>{insight.action}</span>
+                <span>→</span>
+              </button>
+            </motion.div>
+          ))}
+        </motion.div>ght.action} →
               </button>
             </div>
           ))}
